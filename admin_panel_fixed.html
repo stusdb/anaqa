@@ -381,142 +381,142 @@
 
     <!-- إضافة Supabase من الـ CDN كـ Module -->
     <script type="module">
-        import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
 
-        const supabaseUrl = "https://nyaarvzgsaywfdwcadnu.supabase.co"
-        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im55YWFydnpnc2F5d2Zkd2NhZG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NDc1NjksImV4cCI6MjA5MjMyMzU2OX0.BOA3WcT5YsEQhOms8Hk4LPHo4NbTO02-rlDm7ANWTxs"
-        const supabase = createClient(supabaseUrl, supabaseKey)
+    const supabaseUrl = "https://nyaarvzgsaywfdwcadnu.supabase.co"
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im55YWFydnpnc2F5d2Zkd2NhZG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NDc1NjksImV4cCI6MjA5MjMyMzU2OX0.BOA3WcT5YsEQhOms8Hk4LPHo4NbTO02-rlDm7ANWTxs"
+    const supabase = createClient(supabaseUrl, supabaseKey)
 
-        const productForm = document.getElementById('productForm');
-        const productsList = document.getElementById('productsList');
-        const addBtnText = document.getElementById('addBtnText');
-        const addSpinner = document.getElementById('addSpinner');
+    const productForm = document.getElementById('productForm');
+    const productsList = document.getElementById('productsList');
+    const addBtnText = document.getElementById('addBtnText');
+    const addSpinner = document.getElementById('addSpinner');
 
-        // إضافة منتج جديد
-        productForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const name        = document.getElementById('productName').value.trim();
-            const price       = parseFloat(document.getElementById('productPrice').value);
-            const description = document.getElementById('productDesc').value.trim();
-            const image      = document.getElementById('productImage').value.trim();
+    productForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-            if (!name || !price || !description || !image) return;
+        const name = document.getElementById('productName')?.value.trim();
+        const priceValue = document.getElementById('productPrice')?.value.trim();
+        const description = document.getElementById('productDesc')?.value.trim();
+        const image = document.getElementById('productImage')?.value.trim();
 
-            // إظهار التحميل
-            addBtnText.style.display = 'none';
-            addSpinner.style.display = 'flex';
+        if (!name || !priceValue || !description || !image) {
+            alert('يرجى ملء جميع الخانات المطلوبة');
+            return;
+        }
 
-            try {
-                const { data, error } = await supabase
-                    .from('products')
-                    .insert([
-                        { name: name, price: price, description: description, image: image }
-                    ]);
+        const price = Number(priceValue);
 
-                if (error) throw error;
-                
-                // إعادة تعيين النموذج
-                productForm.reset();
-                
-                // تحديث القائمة
-                loadProducts();
-                
-            } catch (error) {
-                console.error('خطأ في إضافة المنتج:', error);
-                alert('حدث خطأ أثناء حفظ المنتج');
-            } finally {
-                addBtnText.style.display = 'inline-flex';
-                addSpinner.style.display = 'none';
-            }
-        });
+        if (Number.isNaN(price) || price < 0) {
+            alert('يرجى إدخال سعر صحيح');
+            return;
+        }
 
-        // تحميل وعرض المنتجات
-        async function loadProducts() {
-            try {
-                const { data: products, error } = await supabase
-                    .from('products')
-                    .select('*')
-                    .order('created_at', { ascending: false });
+        addBtnText.style.display = 'none';
+        addSpinner.style.display = 'flex';
 
-                if (error) throw error;
-                
-                if (!products || products.length === 0) {
-                    productsList.innerHTML = `
-                        <div style="text-align: center; color: var(--text-muted); padding: 60px 20px;">
-                            <i class="fas fa-inbox" style="font-size: 4rem; margin-bottom: 20px; opacity: 0.5;"></i>
-                            <h3 style="font-size: 1.5rem; margin-bottom: 8px;">لا توجد منتجات حالياً</h3>
-                            <p>أضف منتجاً جديداً باستخدام النموذج أعلاه</p>
-                        </div>
-                    `;
-                    return;
-                }
+        try {
+            const { error } = await supabase
+                .from('products')
+                .insert([
+                    {
+                        name,
+                        price,
+                        description,
+                        image
+                    }
+                ]);
 
-                productsList.innerHTML = products.map(data => {
-                    return `
-                        <article class="product-card" data-id="${data.id}">
-                            <img src="${data.image || ''}" alt="${data.name}" class="product-image" 
-                                 onerror="this.src='https://via.placeholder.com/100x100/1d1e22/8c837b?text=?';">
-                            <div class="product-info">
-                                <h3>${data.name}</h3>
-                                <div class="product-price">${data.price} د.ج</div>
-                                <p class="product-desc">${data.description}</p>
-                                <div class="product-actions">
-                                    <span class="status success">
-                                        <i class="fas fa-check-circle"></i> نشط
-                                    </span>
-                                    <button class="btn btn-danger delete-btn" data-id="${data.id}" style="width: auto; padding: 0 20px;">
-                                        <i class="fas fa-trash"></i> حذف
-                                    </button>
-                                </div>
-                            </div>
-                        </article>
-                    `;
-                }).join('');
+            if (error) throw error;
 
-                // ربط أحداث الحذف بالأزرار الجديدة
-                document.querySelectorAll('.delete-btn').forEach(button => {
-                    button.addEventListener('click', async (e) => {
-                        const id = e.target.closest('button').getAttribute('data-id');
-                        await deleteProduct(id);
-                    });
-                });
+            productForm.reset();
+            await loadProducts();
+            alert('تمت إضافة المنتج بنجاح');
+        } catch (error) {
+            console.error('خطأ في إضافة المنتج:', error);
+            alert('حدث خطأ أثناء رفع المنتج: ' + error.message);
+        } finally {
+            addBtnText.style.display = 'inline-flex';
+            addSpinner.style.display = 'none';
+        }
+    });
 
-            } catch (error) {
-                console.error('خطأ في تحميل المنتجات:', error);
+    async function loadProducts() {
+        try {
+            const { data: products, error } = await supabase
+                .from('products')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+
+            if (!products || products.length === 0) {
                 productsList.innerHTML = `
-                    <div style="text-align: center; color: var(--danger); padding: 60px 20px;">
-                        <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 16px;"></i>
-                        <h3>خطأ في تحميل المنتجات</h3>
-                        <p>يرجى المحاولة مرة أخرى</p>
-                        <button onclick="location.reload()" class="btn btn-primary" style="margin-top: 20px;">
-                            إعادة المحاولة
-                        </button>
+                    <div style="text-align: center; color: var(--text-muted); padding: 60px 20px;">
+                        <i class="fas fa-inbox" style="font-size: 4rem; margin-bottom: 20px; opacity: 0.5;"></i>
+                        <h3 style="font-size: 1.5rem; margin-bottom: 8px;">لا توجد منتجات حالياً</h3>
+                        <p>أضف منتجاً جديداً باستخدام النموذج أعلاه</p>
                     </div>
                 `;
+                return;
             }
+
+            productsList.innerHTML = products.map(product => `
+                <article class="product-card" data-id="${product.id}">
+                    <img
+                        src="${product.image || ''}"
+                        alt="${product.name}"
+                        class="product-image"
+                        onerror="this.src='https://via.placeholder.com/100x100/1d1e22/8c837b?text=?';"
+                    >
+                    <div class="product-info" style="flex:1;">
+                        <h3>${product.name}</h3>
+                        <div class="product-price">${Number(product.price).toLocaleString('ar-DZ')} د.ج</div>
+                        <p class="product-desc">${product.description || ''}</p>
+                        <div class="product-actions">
+                            <span class="status success">
+                                <i class="fas fa-check-circle"></i> نشط
+                            </span>
+                            <button onclick="deleteProduct(${product.id})" class="btn btn-danger" style="width:auto; padding:0 20px;">
+                                <i class="fas fa-trash"></i> حذف
+                            </button>
+                        </div>
+                    </div>
+                </article>
+            `).join('');
+
+        } catch (error) {
+            console.error('خطأ في تحميل المنتجات:', error);
+            productsList.innerHTML = `
+                <div style="text-align: center; color: var(--danger); padding: 60px 20px;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 16px;"></i>
+                    <h3>خطأ في تحميل المنتجات</h3>
+                    <p>${error.message}</p>
+                </div>
+            `;
         }
+    }
 
-        // حذف منتج
-        async function deleteProduct(id) {
-            if (!confirm('هل أنت متأكد من حذف هذا المنتج؟')) return;
-            
-            try {
-                const { error } = await supabase
-                    .from('products')
-                    .delete()
-                    .eq('id', id);
+    window.deleteProduct = async (id) => {
+        const confirmed = confirm('هل أنت متأكد من حذف هذا المنتج؟');
+        if (!confirmed) return;
 
-                if (error) throw error;
-                loadProducts(); // تحديث القائمة تلقائياً
-            } catch (error) {
-                console.error('خطأ في حذف المنتج:', error);
-                alert('حدث خطأ أثناء حذف المنتج');
-            }
+        try {
+            const { error } = await supabase
+                .from('products')
+                .delete()
+                .eq('id', id);
+
+            if (error) throw error;
+
+            await loadProducts();
+        } catch (error) {
+            console.error('خطأ في حذف المنتج:', error);
+            alert('حدث خطأ أثناء حذف المنتج: ' + error.message);
         }
+    };
 
-        // تحميل المنتجات عند بدء الصفحة
-        loadProducts();
-    </script>
+    loadProducts();
+</script>
 </body>
 </html>
