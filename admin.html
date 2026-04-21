@@ -539,16 +539,24 @@
 
           <div class="form-grid full">
             <div class="form-group">
-              <label>صور المنتج وألوانه * (يمكنك إضافة أكثر من صورة)</label>
-              <div id="imageColorContainer" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px;">
-                  <!-- صف الصورة واللون الأولي -->
-                  <div class="image-color-row" style="display: flex; gap: 10px; align-items: center; background: rgba(255,255,255,0.02); padding: 10px; border-radius: 10px; border: 1px solid var(--border);">
-                      <input type="file" class="productImageInput" accept="image/*" style="flex: 1; padding: 5px;" required>
-                      <input type="text" class="productColorInput" placeholder="اسم اللون (مثل: أحمر، أسود)" style="flex: 1; padding: 10px;" required>
-                      <button type="button" class="btn btn-danger remove-row-btn" style="padding: 10px; min-height: auto;"><i class="fa-solid fa-trash"></i></button>
+              <label>صورة المنتج * (اختاري طريقة واحدة)</label>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+                <div>
+                  <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:8px;">رابط الصورة</p>
+                  <input type="url" id="productImageUrl" placeholder="https://example.com/image.jpg">
+                </div>
+                <div>
+                  <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:8px;">أو رفع صورة</p>
+                  <div class="file-input-wrapper">
+                    <input type="file" id="productImage" accept="image/*">
+                    <label class="file-input-label" for="productImage" style="padding:12px;margin:0;">
+                      <i class="fa-solid fa-cloud-arrow-up"></i>
+                      <span style="font-size:.9rem;">اختاري صورة</span>
+                    </label>
                   </div>
+                </div>
               </div>
-              <button type="button" id="addImageRowBtn" class="btn btn-secondary" style="margin-top: 10px; min-height: 40px; width: 100%;"><i class="fa-solid fa-plus"></i> إضافة صورة ولون آخر</button>
+              <img id="imagePreview" class="image-preview" style="display:none;">
             </div>
           </div>
 
@@ -618,14 +626,24 @@
 
         <div class="form-grid full">
           <div class="form-group">
-            <label>تحديث صور وألوان المنتج (إضافة صور جديدة - اختياري)</label>
-            <div id="editImageColorContainer" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px;">
-                <!-- الصور الحالية ستظهر هنا عبر JavaScript -->
+            <label>تحديث الصورة (اختياري)</label>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+              <div>
+                <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:8px;">رابط جديد</p>
+                <input type="url" id="editProductImageUrl" placeholder="https://example.com/image.jpg">
+              </div>
+              <div>
+                <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:8px;">أو رفع صورة جديدة</p>
+                <div class="file-input-wrapper">
+                  <input type="file" id="editProductImage" accept="image/*">
+                  <label class="file-input-label" for="editProductImage" style="padding:12px;margin:0;">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <span style="font-size:.9rem;">اختاري صورة</span>
+                  </label>
+                </div>
+              </div>
             </div>
-            <div id="newEditImageColorContainer" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; margin-top: 15px;">
-                <!-- يمكن للمستخدم إضافة صفوف جديدة هنا -->
-            </div>
-            <button type="button" id="addEditImageRowBtn" class="btn btn-secondary" style="margin-top: 10px; min-height: 40px; width: 100%;"><i class="fa-solid fa-plus"></i> إضافة صورة ولون جديد للمنتج</button>
+            <img id="editImagePreview" class="image-preview">
           </div>
         </div>
 
@@ -676,6 +694,33 @@
     const editModal = document.getElementById('editModal');
     const editForm = document.getElementById('editForm');
     const refreshBtn = document.getElementById('refreshBtn');
+
+    // Image Preview
+    document.getElementById('productImage').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const preview = document.getElementById('imagePreview');
+          preview.src = event.target.result;
+          preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    document.getElementById('editProductImage').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const preview = document.getElementById('editImagePreview');
+          preview.src = event.target.result;
+          preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      }
+    });
 
     // Show Message
     function showMessage(message, type = 'info') {
@@ -738,67 +783,6 @@
     }
 
     // Add Product
-    
-    // دالة الرفع إلى ImgBB
-    async function uploadToImgBB(file) {
-        const formData = new FormData();
-        formData.append("image", file);
-
-        const response = await fetch("https://api.imgbb.com/1/upload?key=8b110ff9d2b033449ba743677d0487e3", {
-            method: "POST",
-            body: formData
-        });
-
-        const data = await response.json();
-        if (data.success) {
-            return data.data.url;
-        } else {
-            throw new Error("فشل رفع إحدى الصور");
-        }
-    }
-
-    // زر إضافة حقل جديد للصورة واللون في الإضافة
-    const addImageRowBtn = document.getElementById('addImageRowBtn');
-    if (addImageRowBtn) {
-        addImageRowBtn.addEventListener('click', () => {
-            const container = document.getElementById('imageColorContainer');
-            const row = document.createElement('div');
-            row.className = 'image-color-row';
-            row.style.cssText = 'display: flex; gap: 10px; align-items: center; background: rgba(255,255,255,0.02); padding: 10px; border-radius: 10px; border: 1px solid var(--border);';
-            row.innerHTML = `
-                <input type="file" class="productImageInput" accept="image/*" style="flex: 1; padding: 5px;" required>
-                <input type="text" class="productColorInput" placeholder="اسم اللون (مثل: أحمر، أسود)" style="flex: 1; padding: 10px;" required>
-                <button type="button" class="btn btn-danger remove-row-btn" style="padding: 10px; min-height: auto;"><i class="fa-solid fa-trash"></i></button>
-            `;
-            container.appendChild(row);
-            row.querySelector('.remove-row-btn').addEventListener('click', () => row.remove());
-        });
-
-        // تفعيل زر الحذف للصف الأول
-        document.querySelector('.remove-row-btn').addEventListener('click', function(e) {
-            e.target.closest('.image-color-row').remove();
-        });
-    }
-
-    // زر إضافة حقل جديد للصورة واللون في التعديل
-    const addEditImageRowBtn = document.getElementById('addEditImageRowBtn');
-    if (addEditImageRowBtn) {
-        addEditImageRowBtn.addEventListener('click', () => {
-            const container = document.getElementById('newEditImageColorContainer');
-            const row = document.createElement('div');
-            row.className = 'new-edit-image-color-row';
-            row.style.cssText = 'display: flex; gap: 10px; align-items: center; background: rgba(255,255,255,0.02); padding: 10px; border-radius: 10px; border: 1px dashed var(--gold);';
-            row.innerHTML = `
-                <input type="file" class="newEditProductImageInput" accept="image/*" style="flex: 1; padding: 5px;">
-                <input type="text" class="newEditProductColorInput" placeholder="اسم اللون الجديد" style="flex: 1; padding: 10px;">
-                <button type="button" class="btn btn-danger remove-new-edit-row-btn" style="padding: 10px; min-height: auto;"><i class="fa-solid fa-trash"></i></button>
-            `;
-            container.appendChild(row);
-            row.querySelector('.remove-new-edit-row-btn').addEventListener('click', () => row.remove());
-        });
-    }
-
-    // Add Product Function
     productForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const submitBtn = productForm.querySelector('button[type="submit"]');
@@ -807,76 +791,62 @@
       submitBtn.innerHTML = '<span class="spinner"></span> جاري الإضافة...';
 
       try {
-        const rows = document.querySelectorAll('#imageColorContainer .image-color-row');
-        let variants = []; 
+        const imageFile = document.getElementById('productImage').files[0];
+        const imageUrl = document.getElementById('productImageUrl').value;
+        let finalImageUrl = '';
 
-        for (let row of rows) {
-            const fileInput = row.querySelector('.productImageInput');
-            const colorInput = row.querySelector('.productColorInput');
-
-            if (fileInput.files.length > 0 && colorInput.value.trim() !== "") {
-                const uploadedUrl = await uploadToImgBB(fileInput.files[0]);
-                variants.push({
-                    color: colorInput.value.trim(),
-                    image: uploadedUrl
-                });
-            }
+        // التحقق من وجود صورة (رابط أو ملف)
+        if (!imageFile && !imageUrl) {
+          showMessage('يرجى إدخال رابط الصورة أو اختيار صورة', 'error');
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalHTML;
+          return;
         }
 
-        if (variants.length === 0) {
-            showMessage('يرجى رفع صورة واحدة على الأقل مع تحديد اللون', 'error');
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = originalHTML;
-            return;
+        // إذا اختارت صورة، رفعها إلى Firebase
+        if (imageFile) {
+          console.log("[v0] جاري رفع الصورة إلى Firebase");
+          const storageRef = ref(storage, `products/${Date.now()}_${imageFile.name}`);
+          const snapshot = await uploadBytes(storageRef, imageFile);
+          finalImageUrl = await getDownloadURL(snapshot.ref);
+          console.log("[v0] تم رفع الصورة بنجاح:", finalImageUrl);
+        } else {
+          // أو استخدام رابط الصورة المدخل
+          console.log("[v0] استخدام رابط الصورة:", imageUrl);
+          finalImageUrl = imageUrl;
         }
 
-        // دمج الألوان القديمة (إن وجدت) مع الألوان الجديدة
         const colorsText = document.getElementById('productColors').value;
-        let colors = colorsText ? colorsText.split(',').map(c => c.trim()).filter(c => c) : [];
-
-        // استخراج الألوان من الصور المرفوعة
-        const variantColors = variants.map(v => v.color);
-        // دمج وإزالة التكرار
-        colors = [...new Set([...colors, ...variantColors])];
+        const colors = colorsText ? colorsText.split(',').map(c => c.trim()).filter(c => c) : [];
 
         const productData = {
           name: document.getElementById('productName').value,
           price: parseInt(document.getElementById('productPrice').value),
           oldPrice: parseInt(document.getElementById('productOldPrice').value) || null,
           description: document.getElementById('productDescription').value,
-          image: variants[0].image, // الصورة الرئيسية
-          variants: variants, // الصور المتعددة والألوان
+          image: finalImageUrl,
           colors: colors,
           badge: document.getElementById('productBadge').value,
-          createdAt: new Date().toISOString()
+          created_at: new Date().toISOString()
         };
 
-        console.log("[v0] حفظ المنتج:", productData);
+        console.log("[v0] إضافة المنتج:", productData);
         await addDoc(collection(db, "products"), productData);
-        showMessage('تمت الإضافة بنجاح!', 'success');
-        productForm.reset();
-        document.getElementById('imageColorContainer').innerHTML = `
-            <div class="image-color-row" style="display: flex; gap: 10px; align-items: center; background: rgba(255,255,255,0.02); padding: 10px; border-radius: 10px; border: 1px solid var(--border);">
-                <input type="file" class="productImageInput" accept="image/*" style="flex: 1; padding: 5px;" required>
-                <input type="text" class="productColorInput" placeholder="اسم اللون (مثل: أحمر، أسود)" style="flex: 1; padding: 10px;" required>
-                <button type="button" class="btn btn-danger remove-row-btn" style="padding: 10px; min-height: auto;"><i class="fa-solid fa-trash"></i></button>
-            </div>`;
-        document.querySelector('.remove-row-btn').addEventListener('click', function(e) {
-            e.target.closest('.image-color-row').remove();
-        });
 
+        showMessage('تم إضافة المنتج بنجاح!', 'success');
+        productForm.reset();
+        document.getElementById('imagePreview').style.display = 'none';
+        document.getElementById('productImageUrl').value = '';
         await loadProducts();
       } catch (error) {
         console.error("[v0] خطأ:", error);
-        showMessage(error.message, 'error');
+        showMessage('خطأ في إضافة المنتج: ' + error.message, 'error');
       } finally {
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalHTML;
       }
     });
 
-
-    // Edit Product
     // Edit Product
     window.editProduct = async (productId) => {
       try {
@@ -901,48 +871,17 @@
         document.getElementById('editProductBadge').value = product.badge || '';
         document.getElementById('editProductDescription').value = product.description;
         document.getElementById('editProductColors').value = product.colors?.join(', ') || '';
-
-        // عرض الصور الحالية
-        const editImageColorContainer = document.getElementById('editImageColorContainer');
-        editImageColorContainer.innerHTML = '';
-        document.getElementById('newEditImageColorContainer').innerHTML = ''; // تنظيف الحقول الجديدة
-
-        window.currentVariants = product.variants || [];
-
-        // التوافق مع المنتجات القديمة
-        if (!product.variants && product.image) {
-            window.currentVariants = [{ image: product.image, color: "اللون الأساسي" }];
+        document.getElementById('editProductImageUrl').value = product.image || '';
+        
+        if (product.image) {
+          document.getElementById('editImagePreview').src = product.image;
+          document.getElementById('editImagePreview').style.display = 'block';
         }
-
-        window.currentVariants.forEach((variant, index) => {
-            const row = document.createElement('div');
-            row.className = 'existing-variant-row';
-            row.style.cssText = 'display: flex; gap: 10px; align-items: center; background: rgba(255,255,255,0.02); padding: 10px; border-radius: 10px; border: 1px solid var(--border);';
-            row.innerHTML = `
-                <img src="${variant.image}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;">
-                <input type="text" class="existingColorInput" data-index="${index}" value="${variant.color}" placeholder="اسم اللون" style="flex: 1; padding: 10px;">
-                <button type="button" class="btn btn-danger remove-existing-row-btn" data-index="${index}" style="padding: 10px; min-height: auto;"><i class="fa-solid fa-trash"></i></button>
-            `;
-            editImageColorContainer.appendChild(row);
-
-            // حذف صورة موجودة
-            row.querySelector('.remove-existing-row-btn').addEventListener('click', (e) => {
-                const idx = parseInt(e.currentTarget.getAttribute('data-index'));
-                window.currentVariants.splice(idx, 1);
-                e.currentTarget.closest('.existing-variant-row').remove();
-            });
-
-            // تحديث اللون الموجود
-            row.querySelector('.existingColorInput').addEventListener('change', (e) => {
-                const idx = parseInt(e.currentTarget.getAttribute('data-index'));
-                window.currentVariants[idx].color = e.target.value;
-            });
-        });
 
         editModal.classList.add('open');
       } catch (error) {
         console.error("[v0] خطأ:", error);
-        showMessage(error.message, 'error');
+        showMessage('خطأ في فتح النموذج: ' + error.message, 'error');
       }
     };
 
@@ -962,60 +901,44 @@
 
       try {
         const productId = document.getElementById('editProductId').value;
+        const imageFile = document.getElementById('editProductImage').files[0];
+        const imageUrl = document.getElementById('editProductImageUrl').value;
         const productRef = doc(db, "products", productId);
-
-        let variantsToSave = [...window.currentVariants];
-
-        // إضافة الصور الجديدة المرفوعة
-        const newRows = document.querySelectorAll('#newEditImageColorContainer .new-edit-image-color-row');
-        for (let row of newRows) {
-            const fileInput = row.querySelector('.newEditProductImageInput');
-            const colorInput = row.querySelector('.newEditProductColorInput');
-
-            if (fileInput.files.length > 0 && colorInput.value.trim() !== "") {
-                const uploadedUrl = await uploadToImgBB(fileInput.files[0]);
-                variantsToSave.push({
-                    color: colorInput.value.trim(),
-                    image: uploadedUrl
-                });
-            }
-        }
-
-        if (variantsToSave.length === 0) {
-            showMessage('يجب أن يحتوي المنتج على صورة واحدة على الأقل', 'error');
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = originalHTML;
-            return;
-        }
-
-        // تحديث الألوان
-        let manualColors = document.getElementById('editProductColors').value
-            .split(',')
-            .map(c => c.trim())
-            .filter(c => c);
-
-        const variantColors = variantsToSave.map(v => v.color);
-        const finalColors = [...new Set([...manualColors, ...variantColors])];
-
+        
         let updateData = {
           name: document.getElementById('editProductName').value,
           price: parseInt(document.getElementById('editProductPrice').value),
           oldPrice: parseInt(document.getElementById('editProductOldPrice').value) || null,
           description: document.getElementById('editProductDescription').value,
           badge: document.getElementById('editProductBadge').value,
-          colors: finalColors,
-          variants: variantsToSave,
-          image: variantsToSave[0].image // تحديث الغلاف لأول صورة
+          colors: document.getElementById('editProductColors').value
+            .split(',')
+            .map(c => c.trim())
+            .filter(c => c)
         };
+
+        // معالجة الصورة الجديدة
+        if (imageFile) {
+          console.log("[v0] جاري رفع صورة جديدة");
+          const storageRef = ref(storage, `products/${Date.now()}_${imageFile.name}`);
+          const snapshot = await uploadBytes(storageRef, imageFile);
+          updateData.image = await getDownloadURL(snapshot.ref);
+          console.log("[v0] تم رفع الصورة:", updateData.image);
+        } else if (imageUrl) {
+          // إذا تم تغيير رابط الصورة فقط
+          console.log("[v0] تحديث رابط الصورة:", imageUrl);
+          updateData.image = imageUrl;
+        }
+        // إذا لم يتم اختيار صورة جديدة، نحافظ على الصورة القديمة (لا نضيفها في updateData)
 
         console.log("[v0] تحديث المنتج:", productId, updateData);
         await updateDoc(productRef, updateData);
-        showMessage('تم التعديل بنجاح!', 'success');
+        showMessage('تم تحديث المنتج بنجاح!', 'success');
         closeEditModal();
         await loadProducts();
       } catch (error) {
         console.error("[v0] خطأ:", error);
-        showMessage(error.message, 'error');
+        showMessage('خطأ في تحديث المنتج: ' + error.message, 'error');
       } finally {
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalHTML;
