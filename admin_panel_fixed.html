@@ -8,8 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
+    
     <style>
         :root {
             --bg: #050505;
@@ -333,7 +332,7 @@
             <div class="container">
                 <h1 class="section-title">
                     إدارة المنتجات
-                    <span class="accent">Firestore Admin Panel</span>
+                    <span class="accent">Supabase Admin Panel</span>
                 </h1>
                 
                 <!-- نموذج إضافة منتج -->
@@ -356,28 +355,8 @@
                                 <textarea id="productDesc" required></textarea>
                             </div>
                             <div class="field field-full">
-                                <label for="productImage">رابط الصورة الأولى (URL) *</label>
+                                <label for="productImage">رابط الصورة (URL) *</label>
                                 <input type="url" id="productImage" required placeholder="https://...">
-                            </div>
-                            <div class="field field-full">
-                                <label for="productImage2">رابط الصورة الثانية (URL) - اختياري</label>
-                                <input type="url" id="productImage2" placeholder="https://...">
-                            </div>
-                            <div class="field field-full">
-                                <label for="productImage3">رابط الصورة الثالثة (URL) - اختياري</label>
-                                <input type="url" id="productImage3" placeholder="https://...">
-                            </div>
-                            <div class="field">
-                                <label for="productOldPrice">السعر القديم (للتخفيض) - اختياري</label>
-                                <input type="number" id="productOldPrice" min="0" step="0.01" placeholder="0">
-                            </div>
-                            <div class="field">
-                                <label for="productBadge">الشارة (badge) - اختياري</label>
-                                <input type="text" id="productBadge" placeholder="مثال: جديد، خصم 20%">
-                            </div>
-                            <div class="field field-full">
-                                <label for="productColors">الألوان المتاحة - اختياري (افصل بفاصلة)</label>
-                                <input type="text" id="productColors" placeholder="مثال: أسود، أبيض، أحمر ملكي">
                             </div>
                         </div>
                         <button type="submit" class="btn btn-primary">
@@ -400,21 +379,13 @@
         </section>
     </main>
 
-    <script>
-        // 🔥 إعدادات Firebase
-        const firebaseConfig = {
-          
-            apiKey: "AIzaSyAgtlnihkwB_mrnV7_78b35B3ydLzjMi3w",
-  authDomain: "orialuxe.firebaseapp.com",
-  projectId: "orialuxe",
-  storageBucket: "orialuxe.firebasestorage.app",
-  messagingSenderId: "456235139808",
-  appId: "1:456235139808:web:3615adab2400bad8910685"
-        };
+    <!-- إضافة Supabase من الـ CDN كـ Module -->
+    <script type="module">
+        import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"
 
-        // تهيئة Firebase
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+        const supabaseUrl = "https://nyaarvzgsaywfdwcadnu.supabase.co"
+        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im55YWFydnpnc2F5d2Zkd2NhZG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NDc1NjksImV4cCI6MjA5MjMyMzU2OX0.BOA3WcT5YsEQhOms8Hk4LPHo4NbTO02-rlDm7ANWTxs"
+        const supabase = createClient(supabaseUrl, supabaseKey)
 
         const productForm = document.getElementById('productForm');
         const productsList = document.getElementById('productsList');
@@ -428,34 +399,22 @@
             const name        = document.getElementById('productName').value.trim();
             const price       = parseFloat(document.getElementById('productPrice').value);
             const description = document.getElementById('productDesc').value.trim();
-            const image1      = document.getElementById('productImage').value.trim();
-            const image2      = document.getElementById('productImage2').value.trim();
-            const image3      = document.getElementById('productImage3').value.trim();
-            const oldPriceVal = document.getElementById('productOldPrice').value.trim();
-            const badge       = document.getElementById('productBadge').value.trim();
-            const colorsRaw   = document.getElementById('productColors').value.trim();
+            const image      = document.getElementById('productImage').value.trim();
 
-            if (!name || !price || !description || !image1) return;
-
-            const images  = [image1, image2, image3].filter(Boolean);
-            const oldPrice = oldPriceVal ? parseFloat(oldPriceVal) : null;
-            const colors  = colorsRaw ? colorsRaw.split(',').map(c => c.trim()).filter(Boolean) : [];
+            if (!name || !price || !description || !image) return;
 
             // إظهار التحميل
             addBtnText.style.display = 'none';
             addSpinner.style.display = 'flex';
 
             try {
-                await db.collection('products').add({
-                    name,
-                    price,
-                    description,
-                    images,
-                    colors,
-                    badge,
-                    oldPrice,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
+                const { data, error } = await supabase
+                    .from('products')
+                    .insert([
+                        { name: name, price: price, description: description, image: image }
+                    ]);
+
+                if (error) throw error;
                 
                 // إعادة تعيين النموذج
                 productForm.reset();
@@ -475,9 +434,14 @@
         // تحميل وعرض المنتجات
         async function loadProducts() {
             try {
-                const snapshot = await db.collection('products').orderBy('createdAt', 'desc').get();
+                const { data: products, error } = await supabase
+                    .from('products')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
                 
-                if (snapshot.empty) {
+                if (!products || products.length === 0) {
                     productsList.innerHTML = `
                         <div style="text-align: center; color: var(--text-muted); padding: 60px 20px;">
                             <i class="fas fa-inbox" style="font-size: 4rem; margin-bottom: 20px; opacity: 0.5;"></i>
@@ -488,12 +452,10 @@
                     return;
                 }
 
-                productsList.innerHTML = snapshot.docs.map(doc => {
-                    const data = doc.data();
-                    const id = doc.id;
+                productsList.innerHTML = products.map(data => {
                     return `
-                        <article class="product-card" data-id="${id}">
-                            <img src="${(data.images && data.images[0]) || data.image || ''}" alt="${data.name}" class="product-image" 
+                        <article class="product-card" data-id="${data.id}">
+                            <img src="${data.image || ''}" alt="${data.name}" class="product-image" 
                                  onerror="this.src='https://via.placeholder.com/100x100/1d1e22/8c837b?text=?';">
                             <div class="product-info">
                                 <h3>${data.name}</h3>
@@ -503,7 +465,7 @@
                                     <span class="status success">
                                         <i class="fas fa-check-circle"></i> نشط
                                     </span>
-                                    <button onclick="deleteProduct('${id}')" class="btn btn-danger" style="width: auto; padding: 0 20px;">
+                                    <button class="btn btn-danger delete-btn" data-id="${data.id}" style="width: auto; padding: 0 20px;">
                                         <i class="fas fa-trash"></i> حذف
                                     </button>
                                 </div>
@@ -512,6 +474,14 @@
                     `;
                 }).join('');
 
+                // ربط أحداث الحذف بالأزرار الجديدة
+                document.querySelectorAll('.delete-btn').forEach(button => {
+                    button.addEventListener('click', async (e) => {
+                        const id = e.target.closest('button').getAttribute('data-id');
+                        await deleteProduct(id);
+                    });
+                });
+
             } catch (error) {
                 console.error('خطأ في تحميل المنتجات:', error);
                 productsList.innerHTML = `
@@ -519,7 +489,7 @@
                         <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 16px;"></i>
                         <h3>خطأ في تحميل المنتجات</h3>
                         <p>يرجى المحاولة مرة أخرى</p>
-                        <button onclick="loadProducts()" class="btn btn-primary" style="margin-top: 20px;">
+                        <button onclick="location.reload()" class="btn btn-primary" style="margin-top: 20px;">
                             إعادة المحاولة
                         </button>
                     </div>
@@ -528,17 +498,22 @@
         }
 
         // حذف منتج
-        window.deleteProduct = async (id) => {
+        async function deleteProduct(id) {
             if (!confirm('هل أنت متأكد من حذف هذا المنتج؟')) return;
             
             try {
-                await db.collection('products').doc(id).delete();
+                const { error } = await supabase
+                    .from('products')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) throw error;
                 loadProducts(); // تحديث القائمة تلقائياً
             } catch (error) {
                 console.error('خطأ في حذف المنتج:', error);
                 alert('حدث خطأ أثناء حذف المنتج');
             }
-        };
+        }
 
         // تحميل المنتجات عند بدء الصفحة
         loadProducts();
