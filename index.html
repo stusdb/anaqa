@@ -1356,24 +1356,30 @@
     // ============================================================
     // 🔥 Firebase: تحميل المنتجات من Firestore بـ onSnapshot
     // ============================================================
-    function listenToProducts() {
-      const q = query(collection(db, 'products'), orderBy('createdAt', 'asc'));
-      onSnapshot(q, (snapshot) => {
+    async function listenToProducts() {
+      try {
+        const { data: productsData, error } = await supabase
+            .from('products')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
         if (els.fbLoading) els.fbLoading.remove();
 
         const newProducts = {};
-        snapshot.docs.forEach(doc => {
-          const data = doc.data();
-          const key  = doc.id;
-          newProducts[key] = {
-            name:        data.name        || 'منتج بدون اسم',
-            price:       data.price       || 0,
-            description: data.description || '',
-            images:      Array.isArray(data.images) ? data.images : (data.image ? [data.image] : ['https://via.placeholder.com/400x400/111214/d4a574?text=No+Image']),
-            colors:      Array.isArray(data.colors) ? data.colors : [],
-            badge:       data.badge       || '',
-            oldPrice:    data.oldPrice    || null
-          };
+
+        // تحويل مصفوفة المنتجات من Supabase إلى شكل الكائن المطلوب 
+        productsData.forEach(data => {
+            const key = data.id.toString();
+            newProducts[key] = {
+                name:        data.name        || 'منتج بدون اسم',
+                price:       data.price       || 0,
+                description: data.description || '',
+                images:      [data.image || 'https://via.placeholder.com/400x400/111214/d4a574?text=No+Image'],
+                colors:      [],
+                badge:       '',
+                oldPrice:    null
+            };
         });
 
         PRODUCTS = newProducts;
@@ -1386,16 +1392,17 @@
         });
 
         renderProducts();
-      }, (error) => {
-        console.error('Firebase error:', error);
+
+      } catch (error) {
+        console.error('Supabase error:', error);
         if (els.productsGrid) {
-          els.productsGrid.innerHTML = \`
+          els.productsGrid.innerHTML = `
             <div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--danger);">
               <i class="fa-solid fa-triangle-exclamation" style="font-size:2.5rem;margin-bottom:14px;"></i>
               <p style="font-size:1.1rem;">تعذّر تحميل المنتجات. يرجى المحاولة مجدداً.</p>
-            </div>\`;
+            </div>`;
         }
-      });
+      }
     }
 
     // ============================================================
