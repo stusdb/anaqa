@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+here<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
@@ -1215,27 +1215,26 @@
   </footer>
 
   <script type="module">
+
     // ============================================================
-    // 🔥 Firebase Modular SDK v10 - Oria Luxe Live Store
+    // ⚡ Firebase SDK - Oria Luxe Live Store
     // ============================================================
-    import { initializeApp }   from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js';
-    import { getFirestore, collection, onSnapshot, query, orderBy }
-                               from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js';
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getStorage } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
     const firebaseConfig = {
-      apiKey:            "AIzaSyAgtlnihkwB_mrnV7_78b35B3ydLzjMi3w",
-      authDomain:        "orialuxe.firebaseapp.com",
-      projectId:         "orialuxe",
-      storageBucket:     "orialuxe.firebasestorage.app",
+      apiKey: "AIzaSyAgtlnihkwB_mrnV7_78b35B3ydLzjMi3w",
+      authDomain: "orialuxe.firebaseapp.com",
+      projectId: "orialuxe",
+      storageBucket: "orialuxe.firebasestorage.app",
       messagingSenderId: "456235139808",
-      appId:             "1:456235139808:web:3615adab2400bad8910685"
+      appId: "1:456235139808:web:3615adab2400bad8910685"
     };
 
     const app = initializeApp(firebaseConfig);
-    const db  = getFirestore(app);
-
-    // ============================================================
-    // بيانات ثابتة
+    const db = getFirestore(app);
+    const storage = getStorage(app);
     // ============================================================
     const CONTACTS = {
       whatsapp:  '+213555123456',
@@ -1354,31 +1353,29 @@
     };
 
     // ============================================================
-    // 🔥 Firebase: تحميل المنتجات من Firestore بـ onSnapshot
+    // 📦 Firebase: جلب المنتجات من قاعدة البيانات
     // ============================================================
-    async function listenToProducts() {
+    async function fetchProductsFromFirebase() {
       try {
-        const { data: productsData, error } = await supabase
-            .from('products')
-            .select('*')
-            .order('created_at', { ascending: false });
-
-        if (error) throw error;
+        const querySnapshot = await getDocs(query(collection(db, 'products'), orderBy('created_at', 'desc')));
+        
         if (els.fbLoading) els.fbLoading.remove();
 
         const newProducts = {};
 
-        // تحويل مصفوفة المنتجات من Supabase إلى شكل الكائن المطلوب 
-        productsData.forEach(data => {
-            const key = data.id.toString();
+        querySnapshot.forEach(docSnapshot => {
+            const data = docSnapshot.data();
+            const key = docSnapshot.id;
+            
             newProducts[key] = {
+                id:          key,
                 name:        data.name        || 'منتج بدون اسم',
                 price:       data.price       || 0,
                 description: data.description || '',
                 images:      [data.image || 'https://via.placeholder.com/400x400/111214/d4a574?text=No+Image'],
-                colors:      [],
-                badge:       '',
-                oldPrice:    null
+                colors:      data.colors      || [],
+                badge:       data.badge       || '',
+                oldPrice:    data.oldPrice    || null
             };
         });
 
@@ -1394,7 +1391,7 @@
         renderProducts();
 
       } catch (error) {
-        console.error('Supabase error:', error);
+        console.error('[v0] Firebase error:', error);
         if (els.productsGrid) {
           els.productsGrid.innerHTML = `
             <div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--danger);">
@@ -1419,69 +1416,69 @@
               'أزرق':'#1a5cb5','أرجواني':'#6b2fa0','زيتي':'#3d5c1d'
             };
             const bg = colorMap[c] || '#888';
-            return \`<span class="color-dot \${i===0?'active':''}" style="background:\${bg}" onclick="selectColor('\${key}',\${i},'\${c}',this)"></span>\`;
+            return `<span class="color-dot ${i===0?'active':''}" style="background:${bg}" onclick="selectColor('${key}',${i},'${c}',this)"></span>`;
           }).join('')
         : '';
 
       const colorsSection = colorsHTML
-        ? \`<div class="color-options">\${colorsHTML}</div>
-           <div class="selected-color">اللون المختار: <span id="selectedColor-\${key}">\${p.colors[0]||''}</span></div>\`
-        : \`<div class="color-options"></div><div class="selected-color"></div>\`;
+        ? `<div class="color-options">${colorsHTML}</div>
+           <div class="selected-color">اللون المختار: <span id="selectedColor-${key}">${p.colors[0]||''}</span></div>`
+        : `<div class="color-options"></div><div class="selected-color"></div>`;
 
       const badgeHTML = p.badge
-        ? \`<div class="badge-wrap"><span class="badge">\${p.badge}</span></div>\`
+        ? `<div class="badge-wrap"><span class="badge">${p.badge}</span></div>`
         : '';
 
       const slidesHTML = p.images.map(src =>
-        \`<div class="product-slide"><img class="product-image" src="\${src}" alt="\${p.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/400x400/111214/d4a574?text=No+Image'"></div>\`
+        `<div class="product-slide"><img class="product-image" src="${src}" alt="${p.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/400x400/111214/d4a574?text=No+Image'"></div>`
       ).join('');
 
       const oldPriceHTML = p.oldPrice
-        ? \`<span class="old-price">\${formatPrice(p.oldPrice)}</span>\`
+        ? `<span class="old-price">${formatPrice(p.oldPrice)}</span>`
         : '';
 
-      return \`
-        <article class="product-card" data-product-key="\${key}">
-          \${badgeHTML}
-          <div class="product-image-slider" onclick="openImageModalByProduct('\${key}')">
-            <div class="product-slides" id="slides-\${key}">
-              \${slidesHTML}
+      return `
+        <article class="product-card" data-product-key="${key}">
+          ${badgeHTML}
+          <div class="product-image-slider" onclick="openImageModalByProduct('${key}')">
+            <div class="product-slides" id="slides-${key}">
+              ${slidesHTML}
             </div>
-            <button class="slider-btn prev" type="button" onclick="event.stopPropagation();changeSlide('\${key}',-1)"><i class="fa-solid fa-chevron-right"></i></button>
-            <button class="slider-btn next" type="button" onclick="event.stopPropagation();changeSlide('\${key}',1)"><i class="fa-solid fa-chevron-left"></i></button>
-            <div class="slider-dots" id="dots-\${key}"></div>
+            <button class="slider-btn prev" type="button" onclick="event.stopPropagation();changeSlide('${key}',-1)"><i class="fa-solid fa-chevron-right"></i></button>
+            <button class="slider-btn next" type="button" onclick="event.stopPropagation();changeSlide('${key}',1)"><i class="fa-solid fa-chevron-left"></i></button>
+            <div class="slider-dots" id="dots-${key}"></div>
             <span class="zoom-hint">تكبير الصورة</span>
           </div>
           <div class="product-content">
             <div class="price-row">
-              <div>\${formatPrice(p.price)} \${oldPriceHTML}</div>
+              <div>${formatPrice(p.price)} ${oldPriceHTML}</div>
             </div>
-            <h3 class="product-title">\${p.name}</h3>
-            <div class="product-subtitle">\${p.description}</div>
-            \${colorsSection}
+            <h3 class="product-title">${p.name}</h3>
+            <div class="product-subtitle">${p.description}</div>
+            ${colorsSection}
             <div class="qty-cart-row">
               <div class="quantity-control">
-                <button class="qty-btn" type="button" onclick="changeProductQty('\${key}',-1)">-</button>
-                <span class="qty-value" id="qty-\${key}">1</span>
-                <button class="qty-btn" type="button" onclick="changeProductQty('\${key}',1)">+</button>
+                <button class="qty-btn" type="button" onclick="changeProductQty('${key}',-1)">-</button>
+                <span class="qty-value" id="qty-${key}">1</span>
+                <button class="qty-btn" type="button" onclick="changeProductQty('${key}',1)">+</button>
               </div>
               <div class="action-grid">
-                <button class="action-btn add-to-cart" type="button" onclick="addToCart('\${key}')"><i class="fa-solid fa-cart-plus"></i> أضيفي للسلة</button>
-                <button class="action-btn buy-now" type="button" onclick="buyNow('\${key}')"><i class="fa-solid fa-bolt"></i> اطلبي الآن</button>
+                <button class="action-btn add-to-cart" type="button" onclick="addToCart('${key}')"><i class="fa-solid fa-cart-plus"></i> أضيفي للسلة</button>
+                <button class="action-btn buy-now" type="button" onclick="buyNow('${key}')"><i class="fa-solid fa-bolt"></i> اطلبي الآن</button>
               </div>
             </div>
           </div>
-        </article>\`;
+        </article>`;
     }
 
     function renderProducts() {
       const keys = Object.keys(PRODUCTS);
       if (!keys.length) {
-        els.productsGrid.innerHTML = \`
+        els.productsGrid.innerHTML = `
           <div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text-muted);">
             <i class="fa-solid fa-box-open" style="font-size:3rem;margin-bottom:14px;opacity:.5;"></i>
             <p style="font-size:1.1rem;">لا توجد منتجات متاحة حالياً</p>
-          </div>\`;
+          </div>`;
         return;
       }
       els.productsGrid.innerHTML = keys.map(k => buildProductCard(k)).join('');
@@ -1519,7 +1516,7 @@
     }
 
     function populateStates() {
-      const options = Object.keys(SHIPPING_PRICES).map(w => \`<option value="\${w}">\${w}</option>\`).join('');
+      const options = Object.keys(SHIPPING_PRICES).map(w => `<option value="${w}">${w}</option>`).join('');
       els.state.innerHTML = '<option value="">— اختاري الولاية —</option>' + options;
       loadLastState();
     }
@@ -1557,21 +1554,21 @@
         els.cartItems.innerHTML = '<p class="cart-empty">سلتك فارغة حالياً<br>ابدئي التسوق الآن!</p>';
         updateSummary(); saveCart(); return;
       }
-      els.cartItems.innerHTML = state.cart.map((item, index) => \`
+      els.cartItems.innerHTML = state.cart.map((item, index) => `
         <div class="cart-item">
           <div class="cart-item-top">
-            <div><strong>\${item.name}</strong><small>\${item.color}</small><small>\${formatPrice(item.price)}</small></div>
-            <strong>\${formatPrice(item.price * item.quantity)}</strong>
+            <div><strong>${item.name}</strong><small>${item.color}</small><small>${formatPrice(item.price)}</small></div>
+            <strong>${formatPrice(item.price * item.quantity)}</strong>
           </div>
           <div class="cart-item-actions">
             <div class="cart-qty">
-              <button type="button" onclick="changeCartQty(\${index},-1)">-</button>
-              <span>\${item.quantity}</span>
-              <button type="button" onclick="changeCartQty(\${index},1)">+</button>
+              <button type="button" onclick="changeCartQty(${index},-1)">-</button>
+              <span>${item.quantity}</span>
+              <button type="button" onclick="changeCartQty(${index},1)">+</button>
             </div>
-            <button type="button" class="remove-btn" onclick="removeFromCart(\${index})">حذف</button>
+            <button type="button" class="remove-btn" onclick="removeFromCart(${index})">حذف</button>
           </div>
-        </div>\`).join('');
+        </div>`).join('');
       updateSummary(); saveCart();
     }
 
@@ -1581,19 +1578,19 @@
     function goToCheckout() { closeCart(); document.getElementById('checkout').scrollIntoView({ behavior: 'smooth' }); }
 
     function initDots(productKey) {
-      const dotsWrap = document.getElementById(\`dots-\${productKey}\`);
+      const dotsWrap = document.getElementById(`dots-${productKey}`);
       if (!dotsWrap || !PRODUCTS[productKey]) return;
       dotsWrap.innerHTML = PRODUCTS[productKey].images.map((_, index) =>
-        \`<button type="button" class="slider-dot \${index === 0 ? 'active' : ''}" onclick="event.stopPropagation();goToSlide('\${productKey}',\${index})"></button>\`
+        `<button type="button" class="slider-dot ${index === 0 ? 'active' : ''}" onclick="event.stopPropagation();goToSlide('${productKey}',${index})"></button>`
       ).join('');
     }
 
     function updateSlider(productKey) {
       const slideIndex = state.currentSlides[productKey] || 0;
-      const slides = document.getElementById(\`slides-\${productKey}\`);
+      const slides = document.getElementById(`slides-${productKey}`);
       if (!slides) return;
-      slides.style.transform = \`translateX(\${slideIndex * 100}%)\`;
-      document.querySelectorAll(\`#dots-\${productKey} .slider-dot\`).forEach((dot, idx) => {
+      slides.style.transform = `translateX(${slideIndex * 100}%)`;
+      document.querySelectorAll(`#dots-${productKey} .slider-dot`).forEach((dot, idx) => {
         dot.classList.toggle('active', idx === slideIndex);
       });
     }
@@ -1621,7 +1618,7 @@
     function selectColor(productKey, imageIndex, colorName, dot) {
       state.selectedColors[productKey]  = colorName;
       state.currentSlides[productKey]   = imageIndex;
-      const el = document.getElementById(\`selectedColor-\${productKey}\`);
+      const el = document.getElementById(`selectedColor-${productKey}`);
       if (el) el.textContent = colorName;
       dot.parentElement.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
       dot.classList.add('active');
@@ -1630,7 +1627,7 @@
 
     function changeProductQty(productKey, delta) {
       state.quantities[productKey] = Math.max(1, (state.quantities[productKey] || 1) + delta);
-      const el = document.getElementById(\`qty-\${productKey}\`);
+      const el = document.getElementById(`qty-${productKey}`);
       if (el) el.textContent = state.quantities[productKey];
     }
 
@@ -1649,7 +1646,7 @@
         color: state.selectedColors[productKey] || '',
         quantity: state.quantities[productKey] || 1
       });
-      showMiniCart('تمت الإضافة للسلة', \`\${product.name} - \${state.selectedColors[productKey] || ''}\`);
+      showMiniCart('تمت الإضافة للسلة', `${product.name} - ${state.selectedColors[productKey] || ''}`);
     }
 
     function buyNow(productKey) {
@@ -1675,7 +1672,7 @@
     function removeFromCart(index) {
       const item = state.cart[index];
       if (!item) return;
-      if (!confirm(\`هل تريدين حذف "\${item.name}" من السلة؟\`)) return;
+      if (!confirm(`هل تريدين حذف "${item.name}" من السلة؟`)) return;
       state.cart.splice(index, 1);
       renderCart();
       setHint('تم حذف المنتج من السلة.');
@@ -1725,9 +1722,9 @@
       const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
       const total    = shipping.unavailable ? subtotal : subtotal + shipping.price;
       const itemsText = items.map(item =>
-        \`▪ \${item.name} \${item.color ? '- ' + item.color : ''} × \${item.quantity} = \${formatPrice(item.price * item.quantity)}\`
+        `▪ ${item.name} ${item.color ? '- ' + item.color : ''} × ${item.quantity} = ${formatPrice(item.price * item.quantity)}`
       ).join('\n');
-      const message = \`🛍️ طلب جديد - Oria Luxe\n👤 \${els.fullName.value.trim()}\n📞 \${els.phone.value.trim()}\n📍 \${els.state.value}\${shipping.label}\n🏠 \${els.address.value.trim()}\n\n\${itemsText}\n\n💰 المجموع: \${formatPrice(subtotal)}\n🚚 التوصيل: \${shipping.unavailable ? 'غير متاح' : formatPrice(shipping.price)}\n✅ الإجمالي: \${shipping.unavailable ? 'غير متاح' : formatPrice(total)}\`;
+      const message = `🛍️ طلب جديد - Oria Luxe\n👤 ${els.fullName.value.trim()}\n📞 ${els.phone.value.trim()}\n📍 ${els.state.value}${shipping.label}\n🏠 ${els.address.value.trim()}\n\n${itemsText}\n\n💰 المجموع: ${formatPrice(subtotal)}\n🚚 التوصيل: ${shipping.unavailable ? 'غير متاح' : formatPrice(shipping.price)}\n✅ الإجمالي: ${shipping.unavailable ? 'غير متاح' : formatPrice(total)}`;
       state.lastOrderMessage = message;
       return message;
     }
@@ -1754,18 +1751,18 @@
     async function openOrderChannel(channel, message) {
       const encoded = encodeURIComponent(message);
       if (channel === 'whatsapp') {
-        window.open(\`https://wa.me/\${CONTACTS.whatsapp}?text=\${encoded}\`, '_blank');
+        window.open(`https://wa.me/${CONTACTS.whatsapp}?text=${encoded}`, '_blank');
         setHint('تم فتح واتساب. أرسلي الطلب.');
         return;
       }
       if (channel === 'messenger') {
-        window.open(\`https://m.me/\${CONTACTS.messenger}\`, '_blank');
+        window.open(`https://m.me/${CONTACTS.messenger}`, '_blank');
         const copied = await copyText(message, 'تم نسخ الطلب. الصقيه في المحادثة.');
         if (!copied) els.copyOrderBtn.classList.remove('hidden');
         return;
       }
       if (channel === 'telegram') {
-        window.open(\`https://t.me/\${CONTACTS.telegram}?text=\${encoded}\`, '_blank');
+        window.open(`https://t.me/${CONTACTS.telegram}?text=${encoded}`, '_blank');
         const copied = await copyText(message, 'تم نسخ الطلب .');
         if (!copied) els.copyOrderBtn.classList.remove('hidden');
       }
@@ -1852,7 +1849,7 @@
       initMobileMenu();
       initCartEvents();
       initImageModal();
-      listenToProducts(); // 🔥 تحميل المنتجات من Firebase
+      fetchProductsFromFirebase(); // 📦 جلب المنتجات من Firebase
       els.orderForm.addEventListener('submit', handleSubmit);
     }
 
