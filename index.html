@@ -1377,13 +1377,32 @@
           </div>
         </div>
 
-        <div aria-label="فلاتر المنتجات" class="products-toolbar" id="productsToolbar">
-          <button class="filter-btn active" type="button" data-filter="all">الكل</button>
-          <button class="filter-btn" type="button" data-filter="under-5000">أقل من 5000</button>
-          <button class="filter-btn" type="button" data-filter="above-5000">أكثر من 5000</button>
-        </div>
-
-        <div class="products-grid" id="productsGrid"></div>
+        <div aria-label="أدوات المنتجات" class="products-toolbar" id="productsToolbar" style="display:block;width:100%;margin:0 0 26px;">
+  <div style="background:linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));border:1px solid rgba(255,255,255,0.08);border-radius:24px;padding:16px;box-shadow:var(--shadow);">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px;">
+      <div style="color:var(--text);font-weight:800;font-size:1rem;">فرز وتصفية المنتجات</div>
+      <div style="color:var(--text-faint);font-size:.88rem;">بحث سريع + نوع المنتج + الترتيب</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1.35fr 1fr 1fr;gap:12px;" class="smart-toolbar-grid">
+      <input id="searchInput" type="text" placeholder="ابحثي باسم المنتج..."
+        style="width:100%;padding:13px 16px;border-radius:16px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);color:var(--text);outline:none;">
+      <select id="typeInput"
+        style="width:100%;padding:13px 16px;border-radius:16px;border:1px solid rgba(255,255,255,0.08);background:#111214;color:var(--text);outline:none;">
+        <option value="all">كل الأنواع</option>
+        <option value="ملابس">ملابس</option>
+        <option value="إكسسوارات">إكسسوارات</option>
+      </select>
+      <select id="sortInput"
+        style="width:100%;padding:13px 16px;border-radius:16px;border:1px solid rgba(255,255,255,0.08);background:#111214;color:var(--text);outline:none;">
+        <option value="latest">الأحدث أولاً</option>
+        <option value="oldest">الأقدم أولاً</option>
+        <option value="price-asc">السعر: من الأقل للأعلى</option>
+        <option value="price-desc">السعر: من الأعلى للأقل</option>
+      </select>
+    </div>
+  </div>
+</div>
+<div class="products-grid" id="productsGrid"><div class="products-grid" id="productsGrid"></div>
       </div>
     </section>
 
@@ -1550,6 +1569,11 @@
           <h3 class="footer-title">تواصل</h3>
           <p class="footer-contact">contact@orialuxe.dz</p>
           <p class="footer-contact">+213 549 95 29 34</p>
+<div style="display:flex;gap:18px;margin-top:16px;align-items:center;">
+  <a href="https://instagram.com" target="_blank" aria-label="Instagram" style="font-size:1.55rem;line-height:1;color:transparent;background:linear-gradient(135deg,#7b2ff7 0%,#ff4d8d 55%,#ff9f43 100%);-webkit-background-clip:text;background-clip:text;"><i class="fa-brands fa-instagram"></i></a>
+  <a href="https://wa.me/213000000000" target="_blank" aria-label="WhatsApp" style="font-size:1.55rem;line-height:1;color:transparent;background:linear-gradient(135deg,#00b894 0%,#25D366 55%,#7bed9f 100%);-webkit-background-clip:text;background-clip:text;"><i class="fa-brands fa-whatsapp"></i></a>
+  <a href="https://facebook.com" target="_blank" aria-label="Facebook" style="font-size:1.55rem;line-height:1;color:transparent;background:linear-gradient(135deg,#1877F2 0%,#3b82f6 55%,#60a5fa 100%);-webkit-background-clip:text;background-clip:text;"><i class="fa-brands fa-facebook-f"></i></a>
+</div>
         </div>
       </div>
 
@@ -1653,6 +1677,7 @@
     const state = {
       cart: [],
       selectedColors: {},
+      selectedSizes: {},
       quantities: {},
       currentSlides: {},
       directOrder: null,
@@ -1693,6 +1718,10 @@
       discountRow: document.getElementById("discountRow"),
       discountAmount: document.getElementById("discountAmount")
     };
+
+    let currentCategory = "all";
+    let currentSearch = "";
+    let currentSort = "default";
 
     function formatPrice(value) {
       return Number(value || 0).toLocaleString("ar-DZ") + " دج";
@@ -1752,7 +1781,10 @@
             colors: colors,
             badge: data.badge || "",
             oldPrice: data.oldPrice || null,
-            videoUrl: data.videoUrl || null
+            videoUrl: data.videoUrl || null,
+            category: data.category || "",
+            sizes: Array.isArray(data.sizes) ? data.sizes : [],
+            createdAt: data.createdAt || ""
           };
         });
 
@@ -1760,6 +1792,7 @@
 
         Object.keys(PRODUCTS).forEach((key) => {
           if (!state.selectedColors[key]) state.selectedColors[key] = PRODUCTS[key].colors[0] || "";
+          if (!state.selectedSizes[key] && PRODUCTS[key].sizes?.length) state.selectedSizes[key] = PRODUCTS[key].sizes[0];
           if (!state.quantities[key]) state.quantities[key] = 1;
           if (state.currentSlides[key] === undefined) state.currentSlides[key] = 0;
         });
@@ -1777,15 +1810,19 @@
 
     function buildProductCard(key) {
       const p = PRODUCTS[key];
+      const normalizeCategory = (value = "") => value.toString().trim().replace(/\s+/g, " ");
+      const categoryLabel = normalizeCategory(p.category);
+      const categoryHTML = categoryLabel ? `<div style="display:flex;justify-content:flex-start;margin-bottom:12px;"><span style="padding:7px 12px;border-radius:999px;background:rgba(212,165,116,0.12);border:1px solid rgba(212,165,116,0.25);color:var(--gold);font-size:.8rem;font-weight:800;">${categoryLabel}</span></div>` : ``;
 
-      // تحويل الألوان/الستايلات إلى أزرار نصية
-      const stylesHTML = p.colors.length
-        ? p.colors.map((c, i) => {
-            return `<button type="button" class="style-btn ${i === 0 ? "active" : ""}" onclick="selectColor('${key}', ${i}, '${c}', this)">${c}</button>`;
-          }).join("")
+      const sizesHTML = Array.isArray(p.sizes) && p.sizes.length
+        ? p.sizes.map((size, i) => `<button type="button" class="style-btn size-btn ${state.selectedSizes[key] === size || (!state.selectedSizes[key] && i === 0) ? "active" : ""}" onclick="selectSize('${key}', '${size}', this)">${size}</button>`).join("")
         : ``;
+      const sizesSection = sizesHTML ? `<div class="style-options" style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center;"><span style="color:var(--text-muted);font-size:.92rem;min-width:max-content;">المقاس:</span>${sizesHTML}</div>` : ``;
 
-      const stylesSection = p.colors.length ? `<div class="style-options" style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">${stylesHTML}</div>` : ``;
+      const stylesHTML = p.colors.length
+        ? p.colors.map((c, i) => `<button type="button" class="style-btn ${state.selectedColors[key] === c || (!state.selectedColors[key] && i === 0) ? "active" : ""}" onclick="selectColor('${key}', ${i}, '${c}', this)">${c}</button>`).join("")
+        : ``;
+      const stylesSection = p.colors.length ? `<div class="style-options" style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center;"><span style="color:var(--text-muted);font-size:.92rem;min-width:max-content;">اللون:</span>${stylesHTML}</div>` : ``;
       const badgeHTML = p.badge ? `<div class="badge-wrap"><span class="badge">${p.badge}</span></div>` : "";
 
       const slidesHTML = p.images.map((src) => `
@@ -1795,44 +1832,33 @@
       `).join("");
 
       const oldPriceHTML = p.oldPrice ? `<span class="old-price" style="text-decoration:line-through;color:var(--text-faint);margin-right:8px;font-size:0.9em">${formatPrice(p.oldPrice)}</span>` : "";
-
-      // زر الفيديو يظهر فقط إذا تم وضع رابط
-      const videoHTML = p.videoUrl 
-        ? `<a href="${p.videoUrl}" target="_blank" class="action-btn" style="background:rgba(212,165,116,0.1);color:var(--gold);width:100%;margin-bottom:12px;text-align:center;border:1px solid rgba(212,165,116,0.25);text-decoration:none;display:inline-block;padding:12px;border-radius:12px"><i class="fa-solid fa-play"></i> مشاهدة فيديو المنتج</a>` 
-        : "";
+      const videoHTML = p.videoUrl ? `<a href="${p.videoUrl}" target="_blank" class="action-btn" style="background:rgba(212,165,116,0.1);color:var(--gold);width:100%;margin-bottom:12px;text-align:center;border:1px solid rgba(212,165,116,0.25);text-decoration:none;display:inline-block;padding:12px;border-radius:12px"><i class="fa-solid fa-play"></i> مشاهدة الفيديو</a>` : "";
 
       return `
-        <article class="product-card" data-product-key="${key}" style="background: linear-gradient(180deg, #111214 0%, #0b0c0f 100%);border: 1px solid var(--border);border-radius: 26px;overflow: hidden;position: relative;">
+        <article class="product-card" data-product-key="${key}" style="background:linear-gradient(180deg,#111214 0,#0b0c0f 100);border:1px solid var(--border);border-radius:26px;overflow:hidden;position:relative">
           ${badgeHTML}
-          <div class="product-image-slider" onclick="openImageModalByProduct('${key}')" style="position:relative;aspect-ratio:0.82;overflow:hidden;background:#1b1b1d;cursor:zoom-in;">
-            <div class="product-slides" id="slides-${key}" style="display:flex;transition:transform 0.3s ease;height:100%">
-              ${slidesHTML}
-            </div>
+          <div class="product-image-slider" onclick="openImageModalByProduct('${key}')" style="position:relative;aspect-ratio:0.82;overflow:hidden;background:#1b1b1d;cursor:zoom-in">
+            <div class="product-slides" id="slides-${key}" style="display:flex;transition:transform 0.3s ease;height:100%">${slidesHTML}</div>
             <button class="slider-btn prev" type="button" onclick="event.stopPropagation();changeSlide('${key}', -1)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.5);color:#fff;border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;z-index:2"><i class="fa-solid fa-chevron-right"></i></button>
             <button class="slider-btn next" type="button" onclick="event.stopPropagation();changeSlide('${key}', 1)" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.5);color:#fff;border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;z-index:2"><i class="fa-solid fa-chevron-left"></i></button>
             <div class="slider-dots" id="dots-${key}" style="position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:2"></div>
           </div>
-
           <div class="product-content" style="padding:20px">
-            <div class="price-row" style="color:var(--gold);font-size:1.3rem;font-weight:bold;margin-bottom:8px">
-              <div>${formatPrice(p.price)} ${oldPriceHTML}</div>
-            </div>
+            <div class="price-row" style="color:var(--gold);font-size:1.3rem;font-weight:bold;margin-bottom:8px"><div>${formatPrice(p.price)} ${oldPriceHTML}</div></div>
             <h3 class="product-title" style="font-size:1.4rem;margin-bottom:8px">${p.name}</h3>
             <div class="product-subtitle" style="color:var(--text-muted);font-size:0.9rem;margin-bottom:14px">${p.description}</div>
-
+            ${categoryHTML}
             ${videoHTML}
+            ${sizesSection}
             ${stylesSection}
-
             <div class="qty-cart-row" style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;flex-wrap:wrap;gap:10px">
               <div class="quantity-control" style="background:rgba(255,255,255,0.05);padding:5px 10px;border-radius:20px;display:flex;align-items:center;gap:10px">
                 <button class="qty-btn" type="button" onclick="changeProductQty('${key}', -1)" style="background:transparent;color:#fff;font-size:1.2rem">-</button>
-                <span class="qty-value" id="qty-${key}">1</span>
+                <span class="qty-value" id="qty-${key}">${state.quantities[key] || 1}</span>
                 <button class="qty-btn" type="button" onclick="changeProductQty('${key}', 1)" style="background:transparent;color:#fff;font-size:1.2rem">+</button>
               </div>
-
               <div class="action-grid" style="display:flex;gap:10px;flex:1">
-                <button class="action-btn add-to-cart" type="button" onclick="addToCart('${key}')" style="flex:1;background:transparent;border:1px solid var(--border);color:#fff;padding:12px;border-radius:12px;cursor:pointer"><i class="fa-solid fa-cart-plus"></i></button>
-                <button class="action-btn buy-now" type="button" onclick="buyNow('${key}')" style="flex:2;background:linear-gradient(180deg, #ddb07e 0%, #d4a574 100%);color:#111;border:none;padding:12px;border-radius:12px;font-weight:bold;cursor:pointer">اطلب الآن</button>
+                <button class="action-btn buy-now" type="button" onclick="buyNow('${key}')" style="flex:1;background:linear-gradient(135deg,#e2b88a 0%,#d4a574 55%,#c8915c 100%);color:#111;border:none;padding:13px 16px;border-radius:16px;font-weight:800;cursor:pointer;box-shadow:0 12px 28px rgba(212,165,116,.22)"><i class="fa-solid fa-bag-shopping"></i> أضيفي للسلة</button>
               </div>
             </div>
           </div>
@@ -1840,13 +1866,39 @@
       `;
     }
 
+    function normalizeCategory(value = "") {
+      return value.toString().trim().replace(/\s+/g, " ");
+    }
+
+    function inferCategoryFromName(name = "") {
+      const n = name.toLowerCase();
+      if (["حقيبة", "خاتم", "عقد", "ساعة", "سوار", "حزام", "اكسسوار", "إكسسوار", "accessory"].some(word => n.includes(word.toLowerCase()))) return "إكسسوارات";
+      return "ملابس";
+    }
+
+    function getFilteredKeys() {
+      let keys = Object.keys(PRODUCTS).filter((key) => {
+        const p = PRODUCTS[key];
+        const searchMatch = !currentSearch || p.name.toLowerCase().includes(currentSearch) || (p.description || "").toLowerCase().includes(currentSearch);
+        const productCategory = normalizeCategory(p.category || inferCategoryFromName(p.name));
+        const categoryMatch = currentCategory === "all" || productCategory === currentCategory;
+        return searchMatch && categoryMatch;
+      });
+
+      if (currentSort === "price-asc") keys.sort((a, b) => (PRODUCTS[a].price || 0) - (PRODUCTS[b].price || 0));
+      else if (currentSort === "price-desc") keys.sort((a, b) => (PRODUCTS[b].price || 0) - (PRODUCTS[a].price || 0));
+      else if (currentSort === "oldest") keys.sort((a, b) => new Date(PRODUCTS[a].createdAt || 0) - new Date(PRODUCTS[b].createdAt || 0));
+      else keys.sort((a, b) => new Date(PRODUCTS[b].createdAt || 0) - new Date(PRODUCTS[a].createdAt || 0));
+      return keys;
+    }
+
     function renderProducts() {
-      const keys = Object.keys(PRODUCTS);
+      const keys = getFilteredKeys();
       if (!keys.length) {
         els.productsGrid.innerHTML = `
           <div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text-muted)">
             <i class="fa-solid fa-box-open" style="font-size:3rem;margin-bottom:14px;opacity:.5"></i>
-            <p style="font-size:1.1rem">لا توجد منتجات حالياً</p>
+            <p style="font-size:1.1rem">لا توجد منتجات مطابقة حالياً</p>
           </div>
         `;
         return;
@@ -1935,7 +1987,7 @@
           <div class="cart-item-top">
             <div>
               <strong>${item.name}</strong>
-              <small>${item.color || "—"}</small>
+              <small>${item.color || item.size ? `${item.color ? `اللون: ${item.color}` : ``}${item.color && item.size ? ` | ` : ``}${item.size ? `المقاس: ${item.size}` : ``}` : "—"}</small>
               <small>${formatPrice(item.price)}</small>
             </div>
             <strong>${formatPrice(item.price * item.quantity)}</strong>
@@ -2001,6 +2053,13 @@
     function closeImageModal() { els.imageModal.classList.remove("open"); }
 
     // ⭐ الدالة المسؤولة عن اختيار اللون وتغيير الصورة
+    function selectSize(key, size, btn) {
+      state.selectedSizes[key] = size;
+      const wrap = btn.closest('.style-options');
+      if (wrap) wrap.querySelectorAll('.size-btn').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
     function selectColor(productKey, imageIndex, colorName, btn) {
       state.selectedColors[productKey] = colorName;
       state.currentSlides[productKey] = imageIndex;
@@ -2018,7 +2077,7 @@
     }
 
     function addOrMergeItem(item) {
-      const existing = state.cart.find((i) => i.name === item.name && i.color === item.color);
+      const existing = state.cart.find((i) => i.name === item.name && i.color === item.color && (i.size || "") === (item.size || ""));
       if (existing) existing.quantity += item.quantity;
       else state.cart.push(item);
       renderCart();
@@ -2027,11 +2086,16 @@
     function addToCart(productKey) {
       const product = PRODUCTS[productKey];
       if (!product) return;
+      if (Array.isArray(product.sizes) && product.sizes.length && !state.selectedSizes[productKey]) {
+        alert("يرجى اختيار المقاس أولاً");
+        return;
+      }
       addOrMergeItem({
         id: product.id,
         name: product.name,
         price: product.price,
         color: state.selectedColors[productKey] || "",
+        size: state.selectedSizes[productKey] || "",
         quantity: state.quantities[productKey] || 1,
         image: product.images?.[0] || "",
       });
@@ -2122,8 +2186,14 @@
         },
         delivery: { type: els.deliveryType.value, label: shipping.label, shippingCost },
         items: items.map(item => ({
-          productId: item.id || "", name: item.name, color: item.color || "",
-          price: item.price, quantity: item.quantity, total: item.price * item.quantity
+          productId: item.id || "",
+          name: item.name,
+          color: item.color || "",
+          size: item.size || "",
+          price: item.price,
+          quantity: item.quantity,
+          total: item.price * item.quantity,
+          image: item.image || ""
         })),
         pricing: { subtotal, discount, total },
         status: "pending",
@@ -2138,11 +2208,30 @@
       const discount = calculateDiscount(subtotal);
       const shippingCost = getShippingCost();
       const total = subtotal - discount + shippingCost;
+      const shipping = getShippingDetails();
+      const itemsHTML = state.cart.map((item) => `
+        <div class="modal-item" style="align-items:flex-start;gap:12px;">
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <strong style="color:var(--text)">${item.name}</strong>
+            <span style="color:var(--text-muted);font-size:.88rem;">${item.color ? `اللون: ${item.color}` : `بدون لون محدد`}${item.size ? ` | المقاس: ${item.size}` : ``}</span>
+            <span style="color:var(--text-faint);font-size:.84rem;">الكمية: ${item.quantity} × ${formatPrice(item.price)}</span>
+          </div>
+          <strong>${formatPrice(item.price * item.quantity)}</strong>
+        </div>
+      `).join('');
 
       let summaryHTML = `
         <div class="modal-item"><span>الاسم</span><strong>${els.fullName.value}</strong></div>
         <div class="modal-item"><span>الهاتف</span><strong>${els.phone.value}</strong></div>
-        <div class="modal-item"><span>الإجمالي المطلوب دفعه</span><strong>${formatPrice(total)}</strong></div>
+        <div class="modal-item"><span>الولاية</span><strong>${els.state.value || '—'}</strong></div>
+        <div class="modal-item"><span>نوع التوصيل</span><strong>${shipping.label}</strong></div>
+        <div class="modal-item"><span>العنوان</span><strong style="max-width:65%;text-align:left;">${els.address.value || '—'}</strong></div>
+        <div style="padding:12px 0 6px;color:var(--gold);font-weight:800;">تفاصيل المنتجات</div>
+        ${itemsHTML}
+        <div class="modal-item"><span>المجموع الفرعي</span><strong>${formatPrice(subtotal)}</strong></div>
+        ${discount > 0 ? `<div class="modal-item"><span>الخصم</span><strong style="color:var(--success)">- ${formatPrice(discount)}</strong></div>` : ``}
+        <div class="modal-item"><span>التوصيل</span><strong>${formatPrice(shippingCost)}</strong></div>
+        <div class="modal-item total"><span>الإجمالي المطلوب دفعه</span><strong>${formatPrice(total)}</strong></div>
       `;
       els.modalSummary.innerHTML = summaryHTML;
       els.confirmModal.classList.add("show");
@@ -2173,6 +2262,7 @@
 
         alert(`تم إرسال الطلب بنجاح إلى الإدارة\nرقم طلبك: ${docRef.id}`);
         state.cart = [];
+        state.selectedSizes = {};
         els.orderForm.reset();
         renderCart();
       } catch (error) {
@@ -2234,9 +2324,33 @@
     populateStates();
     loadCart();
     renderCart();
+
+    const searchInput = document.getElementById("searchInput");
+    const sortInput = document.getElementById("sortInput");
+    const typeInput = document.getElementById("typeInput");
+
+    searchInput?.addEventListener("input", (e) => {
+      currentSearch = e.target.value.trim().toLowerCase();
+      renderProducts();
+    });
+
+    sortInput?.addEventListener("change", (e) => {
+      currentSort = e.target.value;
+      renderProducts();
+    });
+
+    typeInput?.addEventListener("change", (e) => {
+      currentCategory = e.target.value || "all";
+      renderProducts();
+    });
+
+    currentSort = sortInput?.value || "latest";
+    currentCategory = typeInput?.value || "all";
+
     fetchProductsFromFirebase();
 
     // جعل الدوال مرئية للـ HTML
+    window.selectSize = selectSize;
     window.selectColor = selectColor;
     window.changeProductQty = changeProductQty;
     window.changeSlide = changeSlide;
@@ -2257,4 +2371,4 @@
   </script>
     
 </body>
-  </html>
+</html>
