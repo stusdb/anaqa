@@ -23,6 +23,7 @@
       --gold: #d4a574;
       --danger: #cc6f6f;
       --success: #36b36d;
+      --info: #3691b3;
       --shadow: 0 18px 60px rgba(0,0,0,0.38);
       --transition: 180ms cubic-bezier(.16,1,.3,1);
     }
@@ -43,6 +44,30 @@
     button { border: 0; cursor: pointer; }
     .container { width: min(calc(100% - 32px), 1180px); margin-inline: auto; }
 
+    /* Login Screen */
+    .login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .login-card {
+      background: linear-gradient(180deg, #111214 0%, #0b0c0f 100%);
+      border: 1px solid var(--border);
+      border-radius: 26px;
+      padding: 40px;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+    .login-card h1 { font-size: 2rem; margin-bottom: 10px; color: var(--gold); }
+    .login-card p { color: var(--text-muted); margin-bottom: 30px; }
+    .login-error { color: var(--danger); margin-bottom: 15px; display: none; }
+
+    .admin-panel { display: none; }
+
     .site-header {
       position: sticky; top: 0; z-index: 1000; background: rgba(18,18,19,0.95);
       backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 16px 0;
@@ -57,14 +82,21 @@
     }
     .icon-btn:hover { background: rgba(255,255,255,0.06); border-color: var(--border-strong); }
 
-    /* Tabs Navigation */
-    .tabs-nav { display: flex; gap: 12px; margin-top: 20px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
-    .tab-btn { background: transparent; border: none; color: var(--text-muted); font-size: 1.2rem; font-weight: 700; padding: 10px 20px; transition: var(--transition); border-radius: 8px 8px 0 0; }
-    .tab-btn.active { color: var(--gold); background: rgba(212,165,116,0.1); border-bottom: 3px solid var(--gold); }
-    .tab-btn:hover:not(.active) { color: var(--text); background: rgba(255,255,255,0.05); }
+    /* Main Tabs */
+    .main-tabs { display: flex; gap: 12px; margin-top: 20px; border-bottom: 1px solid var(--border); padding-bottom: 10px; flex-wrap: wrap; }
+    .main-tab-btn { background: transparent; border: none; color: var(--text-muted); font-size: 1.1rem; font-weight: 700; padding: 10px 20px; transition: var(--transition); border-radius: 8px 8px 0 0; }
+    .main-tab-btn.active { color: var(--gold); background: rgba(212,165,116,0.1); border-bottom: 3px solid var(--gold); }
+    .main-tab-btn:hover:not(.active) { color: var(--text); background: rgba(255,255,255,0.05); }
     
-    .tab-content { display: none; padding-top: 20px; }
-    .tab-content.active { display: block; }
+    .main-tab-content { display: none; padding-top: 20px; }
+    .main-tab-content.active { display: block; }
+
+    /* Order Sub-tabs */
+    .order-sub-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+    .order-sub-tab { padding: 10px 18px; border-radius: 12px; font-weight: 700; transition: var(--transition); border: 1px solid var(--border); background: rgba(255,255,255,0.02); }
+    .order-sub-tab.active { border-color: var(--gold); background: rgba(212,165,116,0.1); color: var(--gold); }
+    .order-sub-tab:hover:not(.active) { background: rgba(255,255,255,0.05); }
+    .order-sub-tab .count { background: var(--gold); color: #111; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem; margin-right: 6px; }
 
     .main { padding: 20px 0 40px; }
     .section-title { font-size: 2.2rem; font-weight: 800; margin-bottom: 28px; }
@@ -77,6 +109,7 @@
 
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 20px; }
     .form-grid.full { grid-template-columns: 1fr; }
+    .form-grid.three { grid-template-columns: 1fr 1fr 1fr; }
     .form-group { display: flex; flex-direction: column; gap: 8px; }
     label { font-size: .9rem; color: var(--text-muted); font-weight: 600; }
 
@@ -86,6 +119,15 @@
     }
     textarea { min-height: 100px; resize: vertical; }
     input:focus, select:focus, textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 4px rgba(212,165,116,0.12); background: rgba(255,255,255,0.05); }
+
+    /* Sizes Checkbox Group */
+    .sizes-group { display: flex; flex-wrap: wrap; gap: 10px; }
+    .size-checkbox { display: none; }
+    .size-label {
+      padding: 10px 18px; border-radius: 10px; border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03); cursor: pointer; transition: var(--transition); font-weight: 600;
+    }
+    .size-checkbox:checked + .size-label { border-color: var(--gold); background: rgba(212,165,116,0.15); color: var(--gold); }
 
     .btn {
       min-height: 52px; padding: 0 28px; border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; gap: 10px;
@@ -101,6 +143,7 @@
     .product-image { width: 100%; height: 200px; object-fit: cover; }
     .product-info { padding: 16px; }
     .product-title { font-size: 1.1rem; font-weight: 800; margin-bottom: 6px; }
+    .product-meta { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 8px; }
     .product-price { color: var(--gold); font-weight: 800; font-size: 1.2rem; margin-bottom: 12px; }
     .product-actions { display: flex; gap: 8px; }
     .product-actions button { flex: 1; padding: 10px; border-radius: 10px; font-weight: 700; border: 1px solid rgba(255,255,255,0.08); }
@@ -115,7 +158,7 @@
     .order-info p { color: var(--text-muted); font-size: 0.9rem; }
     .order-status { font-weight: 700; padding: 6px 12px; border-radius: 8px; font-size: 0.85rem; }
     .status-pending { background: rgba(212, 165, 116, 0.15); color: #d4a574; }
-    .status-shipped { background: rgba(54, 145, 179, 0.15); color: #3691b3; }
+    .status-processing { background: rgba(54, 145, 179, 0.15); color: #3691b3; }
     .status-completed { background: rgba(54, 179, 109, 0.15); color: #36b36d; }
     .status-cancelled { background: rgba(204, 111, 111, 0.15); color: #cc6f6f; }
     
@@ -126,7 +169,7 @@
     .order-item-row img { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; margin-left: 10px; }
     
     .order-totals { background: rgba(0,0,0,0.2); padding: 12px; border-radius: 12px; }
-    .order-actions { display: flex; gap: 10px; margin-top: 10px; border-top: 1px solid var(--border); padding-top: 16px;}
+    .order-actions { display: flex; gap: 10px; margin-top: 10px; border-top: 1px solid var(--border); padding-top: 16px; flex-wrap: wrap; }
     .status-btn { padding: 8px 16px; border-radius: 8px; font-weight: bold; transition: var(--transition); border: 1px solid var(--border); }
     .status-btn:hover { transform: translateY(-2px); }
 
@@ -142,103 +185,166 @@
     .close-modal { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: var(--text); cursor: pointer; transition: var(--transition); }
     .close-modal:hover { background: rgba(255,255,255,0.08); }
 
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+    .empty-state i { font-size: 3rem; margin-bottom: 15px; opacity: 0.5; }
+
     @media (max-width: 760px) {
-      .form-grid, .order-details { grid-template-columns: 1fr; }
+      .form-grid, .form-grid.three, .order-details { grid-template-columns: 1fr; }
       .products-grid { grid-template-columns: 1fr; }
       .order-actions { flex-wrap: wrap; }
       .order-actions .status-btn { flex: 1; min-width: 45%; text-align: center; }
       .image-color-row { flex-direction: column; }
+      .main-tabs { gap: 6px; }
+      .main-tab-btn { font-size: 0.95rem; padding: 8px 12px; }
     }
   </style>
 </head>
 <body>
-  <header class="site-header">
-    <div class="container navbar">
-      <a href="#" class="brand">Oria Luxe <span style="font-size:.7em;color:var(--gold)">Admin</span></a>
-      <div class="nav-right">
-        <button class="icon-btn" id="refreshBtn" aria-label="تحديث"><i class="fa-solid fa-arrow-rotate-right"></i></button>
-        <button class="icon-btn" onclick="window.location.href='index.html'" aria-label="المتجر"><i class="fa-solid fa-store"></i></button>
-      </div>
+  <!-- Login Screen -->
+  <div class="login-screen" id="loginScreen">
+    <div class="login-card">
+      <h1><i class="fa-solid fa-lock"></i> Oria Luxe</h1>
+      <p>لوحة التحكم - الدخول للمسؤولين فقط</p>
+      <div class="login-error" id="loginError">اسم المستخدم أو كلمة المرور غير صحيحة</div>
+      <form id="loginForm">
+        <div class="form-group" style="margin-bottom:15px">
+          <input type="text" id="username" placeholder="اسم المستخدم" required>
+        </div>
+        <div class="form-group" style="margin-bottom:20px">
+          <input type="password" id="password" placeholder="كلمة المرور" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%"><i class="fa-solid fa-sign-in-alt"></i> دخول</button>
+      </form>
     </div>
-  </header>
+  </div>
 
-  <main class="main">
-    <div class="container">
-      <div id="messageBox"></div>
-
-      <!-- أزرار التنقل -->
-      <div class="tabs-nav">
-        <button class="tab-btn active" onclick="switchTab('orders')"><i class="fa-solid fa-box"></i> الطلبات الجديدة</button>
-        <button class="tab-btn" onclick="switchTab('products')"><i class="fa-solid fa-tags"></i> إدارة المنتجات</button>
+  <!-- Admin Panel -->
+  <div class="admin-panel" id="adminPanel">
+    <header class="site-header">
+      <div class="container navbar">
+        <a href="#" class="brand">Oria Luxe <span style="font-size:.7em;color:var(--gold)">Admin</span></a>
+        <div class="nav-right">
+          <button class="icon-btn" id="refreshBtn" aria-label="تحديث"><i class="fa-solid fa-arrow-rotate-right"></i></button>
+          <button class="icon-btn" onclick="window.location.href='index.html'" aria-label="المتجر"><i class="fa-solid fa-store"></i></button>
+          <button class="icon-btn" onclick="logout()" aria-label="خروج"><i class="fa-solid fa-sign-out-alt"></i></button>
+        </div>
       </div>
+    </header>
 
-      <!-- 1. قسم الطلبات -->
-      <div id="ordersTab" class="tab-content active">
-        <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:20px"><i class="fa-solid fa-list-check"></i> طلبات الزبائن</h2>
-        <div class="orders-grid" id="ordersGrid">
-          <div style="text-align:center;padding:40px;color:var(--text-muted)">
-            <i class="fa-solid fa-spinner fa-spin" style="font-size:2rem;margin-bottom:10px"></i>
-            <p>جاري تحميل الطلبات...</p>
+    <main class="main">
+      <div class="container">
+        <div id="messageBox"></div>
+
+        <!-- Main Tabs -->
+        <div class="main-tabs">
+          <button class="main-tab-btn active" onclick="switchMainTab('orders')"><i class="fa-solid fa-box"></i> الطلبات</button>
+          <button class="main-tab-btn" onclick="switchMainTab('products')"><i class="fa-solid fa-tags"></i> المنتجات</button>
+        </div>
+
+        <!-- Orders Tab -->
+        <div id="ordersTab" class="main-tab-content active">
+          <!-- Order Sub-tabs -->
+          <div class="order-sub-tabs">
+            <button class="order-sub-tab active" onclick="filterOrders('pending')">
+              <i class="fa-solid fa-clock"></i> جديدة <span class="count" id="pendingCount">0</span>
+            </button>
+            <button class="order-sub-tab" onclick="filterOrders('processing')">
+              <i class="fa-solid fa-spinner"></i> قيد المعالجة <span class="count" id="processingCount">0</span>
+            </button>
+            <button class="order-sub-tab" onclick="filterOrders('completed')">
+              <i class="fa-solid fa-check"></i> مكتملة <span class="count" id="completedCount">0</span>
+            </button>
+            <button class="order-sub-tab" onclick="filterOrders('cancelled')">
+              <i class="fa-solid fa-times"></i> ملغاة <span class="count" id="cancelledCount">0</span>
+            </button>
+          </div>
+          <div class="orders-grid" id="ordersGrid">
+            <div class="empty-state">
+              <i class="fa-solid fa-spinner fa-spin"></i>
+              <p>جاري التحميل...</p>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- 2. قسم إدارة المنتجات -->
-      <div id="productsTab" class="tab-content">
-        <div class="form-card">
-          <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:20px"><i class="fa-solid fa-plus"></i> إضافة منتج جديد</h2>
-          <form id="productForm" novalidate>
-            <div class="form-grid">
-              <div class="form-group"><label>اسم المنتج</label><input type="text" id="productName" required></div>
-              <div class="form-group"><label>السعر (دج)</label><input type="number" id="productPrice" min="0" step="100" required></div>
-            </div>
-            <div class="form-grid">
-              <div class="form-group"><label>السعر القديم (دج - اختياري)</label><input type="number" id="productOldPrice" min="0" step="100"></div>
-              <div class="form-group"><label>نص الشارة (اختياري)</label><input type="text" id="productBadge" placeholder="مثال: خصم 20%"></div>
-            </div>
-            
-            <!-- إضافة رابط الفيديو -->
-            <div class="form-grid full">
-              <div class="form-group">
-                <label>رابط فيديو للمنتج (اختياري)</label>
-                <input type="url" id="productVideoUrl" placeholder="رابط فيديو MP4 مباشر أو أي رابط مدعوم...">
+        <!-- Products Tab -->
+        <div id="productsTab" class="main-tab-content">
+          <div class="form-card">
+            <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:20px"><i class="fa-solid fa-plus"></i> إضافة منتج جديد</h2>
+            <form id="productForm" novalidate>
+              <div class="form-grid">
+                <div class="form-group"><label>اسم المنتج</label><input type="text" id="productName" required></div>
+                <div class="form-group"><label>السعر (دج)</label><input type="number" id="productPrice" min="0" step="100" required></div>
               </div>
-            </div>
-
-            <div class="form-grid full">
-              <div class="form-group"><label>الوصف</label><textarea id="productDescription" required></textarea></div>
-            </div>
-
-            <div class="form-grid full">
-              <div class="form-group">
-                <label>روابط الصور والألوان والستايلات</label>
-                <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:10px">الصق رابط الصورة المباشر واسم الستايل أو اللون الخاص بها. يمكنك إضافة عدة روابط.</p>
-                <div id="imageColorContainer" style="display:flex;flex-direction:column;gap:10px;margin-bottom:12px">
-                  
-                  <!-- الحقل الأول الافتراضي -->
-                  <div class="image-color-row" style="display:flex;gap:10px;align-items:center;background:rgba(255,255,255,0.02);padding:10px;border-radius:10px;border:1px solid var(--border)">
-                    <input type="url" class="productImageUrlInput" placeholder="رابط الصورة (https://...)" style="flex:2;padding:10px" required>
-                    <input type="text" class="productColorInput" placeholder="اللون/الستايل (مثال: أحمر)" style="flex:1;padding:10px" required>
-                    <button type="button" class="btn btn-danger remove-row-btn" style="padding:10px;min-height:auto"><i class="fa-solid fa-trash"></i></button>
-                  </div>
-
+              <div class="form-grid three">
+                <div class="form-group"><label>السعر القديم (اختياري)</label><input type="number" id="productOldPrice" min="0" step="100"></div>
+                <div class="form-group"><label>الشارة (اختياري)</label><input type="text" id="productBadge" placeholder="مثال: خصم 20%"></div>
+                <div class="form-group">
+                  <label>الفئة</label>
+                  <select id="productCategory" required>
+                    <option value="ملابس">ملابس</option>
+                    <option value="اكسسوارات">اكسسوارات</option>
+                  </select>
                 </div>
-                <button type="button" id="addImageRowBtn" class="btn btn-secondary" style="min-height:40px"><i class="fa-solid fa-plus"></i> إضافة رابط صورة آخر</button>
               </div>
-            </div>
+              
+              <!-- Sizes -->
+              <div class="form-grid full">
+                <div class="form-group">
+                  <label>المقاسات المتوفرة (للملابس)</label>
+                  <div class="sizes-group">
+                    <input type="checkbox" id="sizeS" value="S" class="size-checkbox">
+                    <label for="sizeS" class="size-label">S</label>
+                    <input type="checkbox" id="sizeM" value="M" class="size-checkbox">
+                    <label for="sizeM" class="size-label">M</label>
+                    <input type="checkbox" id="sizeL" value="L" class="size-checkbox">
+                    <label for="sizeL" class="size-label">L</label>
+                    <input type="checkbox" id="sizeXL" value="XL" class="size-checkbox">
+                    <label for="sizeXL" class="size-label">XL</label>
+                    <input type="checkbox" id="sizeXXL" value="XXL" class="size-checkbox">
+                    <label for="sizeXXL" class="size-label">XXL</label>
+                  </div>
+                </div>
+              </div>
 
-            <button type="submit" class="btn btn-primary" style="width:100%;margin-top:16px"><i class="fa-solid fa-plus"></i> نشر المنتج</button>
-          </form>
+              <div class="form-grid full">
+                <div class="form-group">
+                  <label>رابط فيديو (اختياري)</label>
+                  <input type="url" id="productVideoUrl" placeholder="رابط فيديو MP4...">
+                </div>
+              </div>
+
+              <div class="form-grid full">
+                <div class="form-group"><label>الوصف</label><textarea id="productDescription" required></textarea></div>
+              </div>
+
+              <div class="form-grid full">
+                <div class="form-group">
+                  <label>الصور والألوان</label>
+                  <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:10px">أضف رابط الصورة واللون/الستايل</p>
+                  <div id="imageColorContainer" style="display:flex;flex-direction:column;gap:10px;margin-bottom:12px">
+                    <div class="image-color-row" style="display:flex;gap:10px;align-items:center;background:rgba(255,255,255,0.02);padding:10px;border-radius:10px;border:1px solid var(--border)">
+                      <input type="url" class="productImageUrlInput" placeholder="رابط الصورة (https://...)" style="flex:2;padding:10px" required>
+                      <input type="text" class="productColorInput" placeholder="اللون/الستايل" style="flex:1;padding:10px" required>
+                      <button type="button" class="btn btn-danger remove-row-btn" style="padding:10px;min-height:auto"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                  </div>
+                  <button type="button" id="addImageRowBtn" class="btn btn-secondary" style="min-height:40px"><i class="fa-solid fa-plus"></i> إضافة صورة</button>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary" style="width:100%;margin-top:16px"><i class="fa-solid fa-plus"></i> نشر المنتج</button>
+            </form>
+          </div>
+
+          <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:18px">المنتجات الحالية</h2>
+          <div class="products-grid" id="productsGrid"></div>
         </div>
 
-        <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:18px">المنتجات الحالية</h2>
-        <div class="products-grid" id="productsGrid"></div>
       </div>
+    </main>
+  </div>
 
-    </div>
-  </main>
-
-  <!-- نافذة تعديل المنتج Modal -->
+  <!-- Edit Modal -->
   <div class="modal" id="editModal">
     <div class="modal-content">
       <div class="modal-header">
@@ -251,16 +357,41 @@
           <div class="form-group"><label>الاسم</label><input type="text" id="editProductName" required></div>
           <div class="form-group"><label>السعر</label><input type="number" id="editProductPrice" min="0" required></div>
         </div>
-        <div class="form-grid">
+        <div class="form-grid three">
           <div class="form-group"><label>السعر القديم</label><input type="number" id="editProductOldPrice" min="0"></div>
           <div class="form-group"><label>الشارة</label><input type="text" id="editProductBadge"></div>
+          <div class="form-group">
+            <label>الفئة</label>
+            <select id="editProductCategory">
+              <option value="ملابس">ملابس</option>
+              <option value="اكسسوارات">اكسسوارات</option>
+            </select>
+          </div>
         </div>
         
-        <!-- حقل الفيديو في التعديل -->
+        <!-- Edit Sizes -->
         <div class="form-grid full">
           <div class="form-group">
-            <label>رابط فيديو للمنتج (اختياري)</label>
-            <input type="url" id="editProductVideoUrl" placeholder="رابط فيديو MP4 مباشر...">
+            <label>المقاسات المتوفرة</label>
+            <div class="sizes-group">
+              <input type="checkbox" id="editSizeS" value="S" class="size-checkbox">
+              <label for="editSizeS" class="size-label">S</label>
+              <input type="checkbox" id="editSizeM" value="M" class="size-checkbox">
+              <label for="editSizeM" class="size-label">M</label>
+              <input type="checkbox" id="editSizeL" value="L" class="size-checkbox">
+              <label for="editSizeL" class="size-label">L</label>
+              <input type="checkbox" id="editSizeXL" value="XL" class="size-checkbox">
+              <label for="editSizeXL" class="size-label">XL</label>
+              <input type="checkbox" id="editSizeXXL" value="XXL" class="size-checkbox">
+              <label for="editSizeXXL" class="size-label">XXL</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-grid full">
+          <div class="form-group">
+            <label>رابط فيديو</label>
+            <input type="url" id="editProductVideoUrl" placeholder="رابط فيديو MP4...">
           </div>
         </div>
 
@@ -270,12 +401,12 @@
 
         <div class="form-grid full">
           <div class="form-group">
-            <label>الصور والألوان الحالية (روابط)</label>
+            <label>الصور والألوان الحالية</label>
             <div id="editImageColorContainer" style="display:flex;flex-direction:column;gap:10px;margin-bottom:12px"></div>
             
-            <label style="margin-top:10px">إضافة روابط جديدة للمنتج</label>
+            <label style="margin-top:10px">إضافة صور جديدة</label>
             <div id="newEditImageColorContainer" style="display:flex;flex-direction:column;gap:10px;margin-top:10px"></div>
-            <button type="button" id="addEditImageRowBtn" class="btn btn-secondary" style="margin-top:10px;min-height:40px"><i class="fa-solid fa-plus"></i> إضافة رابط صورة جديدة</button>
+            <button type="button" id="addEditImageRowBtn" class="btn btn-secondary" style="margin-top:10px;min-height:40px"><i class="fa-solid fa-plus"></i> إضافة صورة</button>
           </div>
         </div>
         <button type="submit" class="btn btn-primary" style="width:100%;margin-top:16px"><i class="fa-solid fa-check"></i> حفظ التعديلات</button>
@@ -285,9 +416,8 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    // معلومات الفايربيس الخاصة بك
     const firebaseConfig = {
       apiKey: "AIzaSyAgtlnihkwBmrnV778b35B3ydLzjMi3w",
       authDomain: "orialuxe.firebaseapp.com",
@@ -297,8 +427,64 @@
       appId: "1:456235139808:web:3615adab2400bad8910685"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    let app, db;
+    try {
+      app = initializeApp(firebaseConfig);
+      db = getFirestore(app);
+      // Enable offline persistence
+      enableIndexedDbPersistence(db).catch((err) => {
+        if (err.code !== 'failed-precondition') {
+          console.warn("[v0] Offline persistence:", err);
+        }
+      });
+    } catch (e) {
+      console.error("[v0] Firebase initialization failed:", e);
+      document.body.innerHTML += `<div style="padding:20px;color:red;background:#ffebee;border-radius:8px;margin:20px">
+        <strong>خطأ في الاتصال بـ Firebase</strong><br>
+        تأكد من:<br>
+        • أن الرابط يعمل عبر HTTPS (وليس file://)<br>
+        • أن قواعد الأمان في Firebase محدثة<br>
+        • أن لديك اتصال انترنت<br>
+        <small>${e.message}</small>
+      </div>`;
+      throw e;
+    }
+
+    // Login System
+    const ADMIN_USER = "admin";
+    const ADMIN_PASS = "admin123";
+
+    const loginScreen = document.getElementById('loginScreen');
+    const adminPanel = document.getElementById('adminPanel');
+    const loginForm = document.getElementById('loginForm');
+    const loginError = document.getElementById('loginError');
+
+    // Check if already logged in
+    if (sessionStorage.getItem('oriaAdmin') === 'true') {
+      loginScreen.style.display = 'none';
+      adminPanel.style.display = 'block';
+      loadAllOrders();
+    }
+
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      
+      if (username === ADMIN_USER && password === ADMIN_PASS) {
+        sessionStorage.setItem('oriaAdmin', 'true');
+        loginScreen.style.display = 'none';
+        adminPanel.style.display = 'block';
+        loadAllOrders();
+      } else {
+        loginError.style.display = 'block';
+      }
+    });
+
+    window.logout = function() {
+      sessionStorage.removeItem('oriaAdmin');
+      location.reload();
+    };
 
     const messageBox = document.getElementById('messageBox');
     const productsGrid = document.getElementById('productsGrid');
@@ -307,16 +493,20 @@
     const editForm = document.getElementById('editForm');
     const editModal = document.getElementById('editModal');
 
-    // وظيفة التنقل بين التبويبات
-    window.switchTab = function(tabName) {
-      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    let allOrders = [];
+    let allProducts = [];
+    let currentOrderFilter = 'pending';
+
+    // Main Tab Switching
+    window.switchMainTab = function(tabName) {
+      document.querySelectorAll('.main-tab-content').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('.main-tab-btn').forEach(b => b.classList.remove('active'));
       
       document.getElementById(tabName + 'Tab').classList.add('active');
       event.currentTarget.classList.add('active');
 
-      if(tabName === 'orders') loadOrders();
-      if(tabName === 'products') loadProducts();
+      if (tabName === 'orders') loadAllOrders();
+      if (tabName === 'products') loadProducts();
     };
 
     function showMessage(message, type) {
@@ -331,132 +521,166 @@
 
     function formatPrice(val) { return Number(val || 0).toLocaleString("ar-DZ") + " دج"; }
     function formatDate(isoString) { 
-      if(!isoString) return "غير معروف";
+      if (!isoString) return "غير معروف";
       const d = new Date(isoString);
       return d.toLocaleDateString("ar-DZ") + " " + d.toLocaleTimeString("ar-DZ", {hour:'2-digit', minute:'2-digit'});
     }
 
     // ==========================================
-    // 1. نظام الطلبات (Orders System)
+    // Orders System with 4 Tabs
     // ==========================================
     const statusMap = {
-      'pending': { label: 'قيد الانتظار ⏳', class: 'status-pending' },
-      'shipped': { label: 'تم الشحن 🚚', class: 'status-shipped' },
-      'completed': { label: 'مكتمل ✅', class: 'status-completed' },
-      'cancelled': { label: 'ملغى ❌', class: 'status-cancelled' }
+      'pending': { label: 'جديد', class: 'status-pending' },
+      'processing': { label: 'قيد المعالجة', class: 'status-processing' },
+      'completed': { label: 'مكتمل', class: 'status-completed' },
+      'cancelled': { label: 'ملغى', class: 'status-cancelled' }
     };
 
-    async function loadOrders() {
+    async function loadAllOrders() {
       try {
-        ordersGrid.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted)"><i class="fa-solid fa-spinner fa-spin" style="font-size:2rem"></i></div>`;
+        ordersGrid.innerHTML = `<div class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i><p>جاري التحميل...</p></div>`;
         const querySnapshot = await getDocs(query(collection(db, "orders"), orderBy("createdAt", "desc")));
         
-        if (querySnapshot.empty) {
-          ordersGrid.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted)">لا توجد طلبات حتى الآن.</div>`;
-          return;
-        }
-
-        let html = '';
+        allOrders = [];
         querySnapshot.forEach((docSnap) => {
-          const order = docSnap.data();
-          const id = docSnap.id;
-          const status = statusMap[order.status] || statusMap['pending'];
-          
-          let itemsHTML = '';
-          if(order.items && order.items.length) {
-            order.items.forEach(item => {
-              itemsHTML += `
-                <div class="order-item-row">
-                  <div style="display:flex;align-items:center">
-                    ${item.image ? `<img src="${item.image}" alt="">` : ''}
-                    <div>
-                      <strong>${item.name}</strong><br>
-                      <small style="color:var(--text-muted)">الستايل/اللون: ${item.color || '-'} | الكمية: ${item.quantity}</small>
-                    </div>
-                  </div>
-                  <strong>${formatPrice(item.total)}</strong>
-                </div>
-              `;
-            });
-          }
-
-          html += `
-            <div class="order-card">
-              <div class="order-header">
-                <div class="order-info">
-                  <h3>طلب #${id.substring(0,8).toUpperCase()}</h3>
-                  <p><i class="fa-solid fa-clock"></i> ${formatDate(order.createdAtISO)}</p>
-                </div>
-                <span class="order-status ${status.class}">${status.label}</span>
-              </div>
-              <div class="order-details">
-                <div>
-                  <h4 style="margin-bottom:10px;color:var(--gold)"><i class="fa-solid fa-user"></i> العميل</h4>
-                  <p><strong>الاسم:</strong> ${order.customer?.fullName || '-'}</p>
-                  <p><strong>الهاتف:</strong> <a href="tel:${order.customer?.phone}" style="color:var(--gold)">${order.customer?.phone || '-'}</a></p>
-                  <p><strong>الولاية:</strong> ${order.customer?.state || '-'}</p>
-                  <p><strong>العنوان:</strong> ${order.customer?.address || '-'}</p>
-                  <p><strong>التوصيل:</strong> ${order.delivery?.label || '-'} (${formatPrice(order.delivery?.shippingCost)})</p>
-                </div>
-                <div>
-                  <h4 style="margin-bottom:10px;color:var(--gold)"><i class="fa-solid fa-cart-shopping"></i> المنتجات</h4>
-                  <div class="order-items-list">${itemsHTML}</div>
-                  <div class="order-totals" style="margin-top:10px">
-                    <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span>المجموع الفرعي:</span> <span>${formatPrice(order.pricing?.subtotal)}</span></div>
-                    <div style="display:flex;justify-content:space-between;margin-bottom:5px;color:var(--success)"><span>الخصم:</span> <span>- ${formatPrice(order.pricing?.discount)}</span></div>
-                    <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span>الشحن:</span> <span>${formatPrice(order.delivery?.shippingCost)}</span></div>
-                    <div style="display:flex;justify-content:space-between;border-top:1px solid var(--border);padding-top:5px;font-weight:bold;color:var(--gold);font-size:1.1rem"><span>الإجمالي:</span> <span>${formatPrice(order.pricing?.total)}</span></div>
-                  </div>
-                </div>
-              </div>
-              <div class="order-actions">
-                <button onclick="updateOrderStatus('${id}', 'pending')" class="status-btn" style="background:rgba(212,165,116,0.1);color:#d4a574">قيد الانتظار</button>
-                <button onclick="updateOrderStatus('${id}', 'shipped')" class="status-btn" style="background:rgba(54,145,179,0.1);color:#3691b3">شحن الطلب</button>
-                <button onclick="updateOrderStatus('${id}', 'completed')" class="status-btn" style="background:rgba(54,179,109,0.1);color:#36b36d">مكتمل</button>
-                <button onclick="updateOrderStatus('${id}', 'cancelled')" class="status-btn" style="background:rgba(204,111,111,0.1);color:#cc6f6f">إلغاء الطلب</button>
-                <button onclick="deleteOrder('${id}')" class="status-btn" style="background:transparent;border-color:var(--danger);color:var(--danger);margin-right:auto"><i class="fa-solid fa-trash"></i> حذف</button>
-              </div>
-            </div>
-          `;
+          allOrders.push({ id: docSnap.id, ...docSnap.data() });
         });
-        ordersGrid.innerHTML = html;
+
+        // Update counts
+        const counts = { pending: 0, processing: 0, completed: 0, cancelled: 0 };
+        allOrders.forEach(order => {
+          const status = order.status || 'pending';
+          if (counts[status] !== undefined) counts[status]++;
+        });
+
+        document.getElementById('pendingCount').textContent = counts.pending;
+        document.getElementById('processingCount').textContent = counts.processing;
+        document.getElementById('completedCount').textContent = counts.completed;
+        document.getElementById('cancelledCount').textContent = counts.cancelled;
+
+        filterOrders(currentOrderFilter);
       } catch(e) {
-        console.error(e);
-        ordersGrid.innerHTML = `<div style="text-align:center;color:var(--danger)">حدث خطأ أثناء جلب الطلبات.</div>`;
+        console.error("[v0] Firebase Error:", e.code, e.message);
+        let errorMsg = "خطأ في تحميل الطلبات";
+        if (e.code === 'permission-denied') {
+          errorMsg = "خطأ في الأذونات - تحقق من قواعد الأمان في Firebase";
+        } else if (e.message.includes("Collection")) {
+          errorMsg = "لم يتم العثور على مجموعة الطلبات - قد تكون القاعدة فارغة";
+        }
+        ordersGrid.innerHTML = `<div class="empty-state" style="color:var(--danger)"><i class="fa-solid fa-exclamation-triangle"></i><p>${errorMsg}</p><p style="font-size:0.9rem;margin-top:10px;opacity:0.8">${e.code}</p></div>`;
+        showMessage("تحذير: قد تحتاج لفحص Firebase Rules", "error");
       }
     }
 
+    window.filterOrders = function(status) {
+      currentOrderFilter = status;
+      
+      // Update active tab
+      document.querySelectorAll('.order-sub-tab').forEach(tab => tab.classList.remove('active'));
+      event?.currentTarget?.classList.add('active') || document.querySelector(`.order-sub-tab:first-child`).classList.add('active');
+
+      const filtered = allOrders.filter(order => (order.status || 'pending') === status);
+      
+      if (filtered.length === 0) {
+        ordersGrid.innerHTML = `<div class="empty-state"><i class="fa-solid fa-inbox"></i><p>لا توجد طلبات في هذا القسم</p></div>`;
+        return;
+      }
+
+      let html = '';
+      filtered.forEach(order => {
+        const id = order.id;
+        const statusInfo = statusMap[order.status] || statusMap['pending'];
+        
+        let itemsHTML = '';
+        if (order.items && order.items.length) {
+          order.items.forEach(item => {
+            itemsHTML += `
+              <div class="order-item-row">
+                <div style="display:flex;align-items:center">
+                  ${item.image ? `<img src="${item.image}" alt="">` : ''}
+                  <div>
+                    <strong>${item.name}</strong><br>
+                    <small style="color:var(--text-muted)">اللون: ${item.color || '-'} | المقاس: ${item.size || '-'} | الكمية: ${item.quantity}</small>
+                  </div>
+                </div>
+                <strong>${formatPrice(item.total)}</strong>
+              </div>
+            `;
+          });
+        }
+
+        html += `
+          <div class="order-card">
+            <div class="order-header">
+              <div class="order-info">
+                <h3>طلب #${id.substring(0,8).toUpperCase()}</h3>
+                <p><i class="fa-solid fa-clock"></i> ${formatDate(order.createdAtISO || order.createdAt)}</p>
+              </div>
+              <span class="order-status ${statusInfo.class}">${statusInfo.label}</span>
+            </div>
+            <div class="order-details">
+              <div>
+                <h4 style="margin-bottom:10px;color:var(--gold)"><i class="fa-solid fa-user"></i> العميل</h4>
+                <p><strong>الاسم:</strong> ${order.customer?.fullName || '-'}</p>
+                <p><strong>الهاتف:</strong> <a href="tel:${order.customer?.phone}" style="color:var(--gold)">${order.customer?.phone || '-'}</a></p>
+                <p><strong>الولاية:</strong> ${order.customer?.state || '-'}</p>
+                <p><strong>العنوان:</strong> ${order.customer?.address || '-'}</p>
+                <p><strong>التوصيل:</strong> ${order.delivery?.label || '-'} (${formatPrice(order.delivery?.shippingCost)})</p>
+              </div>
+              <div>
+                <h4 style="margin-bottom:10px;color:var(--gold)"><i class="fa-solid fa-cart-shopping"></i> المنتجات</h4>
+                <div class="order-items-list">${itemsHTML}</div>
+                <div class="order-totals" style="margin-top:10px">
+                  <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span>المجموع:</span> <span>${formatPrice(order.pricing?.subtotal)}</span></div>
+                  ${order.pricing?.discount > 0 ? `<div style="display:flex;justify-content:space-between;margin-bottom:5px;color:var(--success)"><span>الخصم:</span> <span>- ${formatPrice(order.pricing?.discount)}</span></div>` : ''}
+                  <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span>الشحن:</span> <span>${formatPrice(order.delivery?.shippingCost)}</span></div>
+                  <div style="display:flex;justify-content:space-between;border-top:1px solid var(--border);padding-top:5px;font-weight:bold;color:var(--gold);font-size:1.1rem"><span>الإجمالي:</span> <span>${formatPrice(order.pricing?.total)}</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="order-actions">
+              <button onclick="updateOrderStatus('${id}', 'pending')" class="status-btn" style="background:rgba(212,165,116,0.1);color:#d4a574"><i class="fa-solid fa-clock"></i> جديد</button>
+              <button onclick="updateOrderStatus('${id}', 'processing')" class="status-btn" style="background:rgba(54,145,179,0.1);color:#3691b3"><i class="fa-solid fa-spinner"></i> معالجة</button>
+              <button onclick="updateOrderStatus('${id}', 'completed')" class="status-btn" style="background:rgba(54,179,109,0.1);color:#36b36d"><i class="fa-solid fa-check"></i> مكتمل</button>
+              <button onclick="updateOrderStatus('${id}', 'cancelled')" class="status-btn" style="background:rgba(204,111,111,0.1);color:#cc6f6f"><i class="fa-solid fa-times"></i> ملغى</button>
+              <button onclick="deleteOrder('${id}')" class="status-btn" style="background:transparent;border-color:var(--danger);color:var(--danger);margin-right:auto"><i class="fa-solid fa-trash"></i></button>
+            </div>
+          </div>
+        `;
+      });
+      ordersGrid.innerHTML = html;
+    };
+
     window.updateOrderStatus = async function(orderId, newStatus) {
-      if(!confirm("تغيير حالة الطلب؟")) return;
+      if (!confirm("تغيير حالة الطلب؟")) return;
       try {
         await updateDoc(doc(db, "orders", orderId), { status: newStatus });
-        showMessage("تم التحديث", "success"); loadOrders();
+        showMessage("تم التحديث", "success");
+        loadAllOrders();
       } catch(e) { showMessage("فشل التحديث", "error"); }
     };
 
     window.deleteOrder = async function(orderId) {
-      if(!confirm("حذف الطلب نهائياً؟ لا يمكن التراجع!")) return;
+      if (!confirm("حذف الطلب نهائيا؟")) return;
       try {
         await deleteDoc(doc(db, "orders", orderId));
-        showMessage("تم الحذف", "success"); loadOrders();
+        showMessage("تم الحذف", "success");
+        loadAllOrders();
       } catch(e) { showMessage("فشل الحذف", "error"); }
     };
 
-
     // ==========================================
-    // 2. نظام المنتجات (إضافة/تعديل/حذف)
+    // Products System with Categories & Sizes
     // ==========================================
-    let allProducts = [];
-
     async function loadProducts() {
       try {
-        productsGrid.innerHTML = `<div style="text-align:center;padding:40px"><i class="fa-solid fa-spinner fa-spin" style="font-size:2rem"></i></div>`;
+        productsGrid.innerHTML = `<div class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i><p>جاري التحميل...</p></div>`;
         const querySnapshot = await getDocs(collection(db, "products"));
         allProducts = [];
         querySnapshot.forEach(doc => allProducts.push({ id: doc.id, ...doc.data() }));
 
         if (!allProducts.length) {
-          productsGrid.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted)">لا توجد منتجات.</div>`;
+          productsGrid.innerHTML = `<div class="empty-state"><i class="fa-solid fa-box-open"></i><p>لا توجد منتجات</p></div>`;
           return;
         }
 
@@ -464,17 +688,18 @@
           let imgUrl = "https://via.placeholder.com/200";
           if (product.variants && product.variants.length > 0) imgUrl = product.variants[0].image;
           else if (product.image) imgUrl = product.image;
-          else if (product.images && product.images.length > 0) imgUrl = product.images[0];
 
-          // إضافة علامة صغيرة إذا كان هناك فيديو
           const videoIcon = product.videoUrl ? `<span style="position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.6);padding:4px 8px;border-radius:8px;font-size:0.8rem"><i class="fa-solid fa-video" style="color:var(--gold)"></i></span>` : '';
+          const categoryBadge = product.category ? `<span style="background:rgba(212,165,116,0.15);color:var(--gold);padding:2px 8px;border-radius:6px;font-size:0.75rem">${product.category}</span>` : '';
+          const sizesText = product.sizes && product.sizes.length ? product.sizes.join(' / ') : '';
 
           return `
           <article class="product-item" style="position:relative">
-            <img src="${imgUrl}" class="product-image">
+            <img src="${imgUrl}" class="product-image" onerror="this.src='https://via.placeholder.com/200'">
             ${videoIcon}
             <div class="product-info">
               <div class="product-title">${product.name}</div>
+              <div class="product-meta">${categoryBadge} ${sizesText ? `<span style="margin-right:8px">${sizesText}</span>` : ''}</div>
               <div class="product-price">${formatPrice(product.price)}</div>
               <div class="product-actions">
                 <button class="edit-btn" onclick="editProduct('${product.id}')"><i class="fa-solid fa-pencil"></i> تعديل</button>
@@ -484,35 +709,45 @@
           </article>
         `}).join('');
       } catch (error) {
-        console.error(error);
-        showMessage("خطأ في جلب المنتجات", "error");
+        console.error("[v0] Products loading error:", error.code, error.message);
+        let errorMsg = "خطأ في جلب المنتجات";
+        if (error.code === 'permission-denied') {
+          errorMsg = "خطأ في الأذونات - تحقق من قواعد الأمان";
+        }
+        productsGrid.innerHTML = `<div class="empty-state" style="color:var(--danger)"><i class="fa-solid fa-exclamation-triangle"></i><p>${errorMsg}</p></div>`;
+        showMessage(errorMsg, "error");
       }
     }
 
-    // إضافة صف لروابط الصور (Add Form)
-    const addImageRowBtn = document.getElementById('addImageRowBtn');
-    if (addImageRowBtn) {
-      addImageRowBtn.addEventListener('click', () => {
-        const container = document.getElementById('imageColorContainer');
-        const row = document.createElement('div');
-        row.className = 'image-color-row';
-        row.style.cssText = 'display:flex;gap:10px;align-items:center;background:rgba(255,255,255,0.02);padding:10px;border-radius:10px;border:1px solid var(--border)';
-        row.innerHTML = `
-          <input type="url" class="productImageUrlInput" placeholder="رابط الصورة (https://...)" style="flex:2;padding:10px" required>
-          <input type="text" class="productColorInput" placeholder="اللون/الستايل (مثال: أزرق)" style="flex:1;padding:10px" required>
-          <button type="button" class="btn btn-danger remove-row-btn" style="padding:10px;min-height:auto"><i class="fa-solid fa-trash"></i></button>
-        `;
-        container.appendChild(row);
-        row.querySelector('.remove-row-btn').addEventListener('click', () => row.remove());
+    // Get selected sizes
+    function getSelectedSizes(prefix = '') {
+      const sizes = [];
+      ['S', 'M', 'L', 'XL', 'XXL'].forEach(size => {
+        if (document.getElementById(prefix + 'size' + size)?.checked) sizes.push(size);
       });
+      return sizes;
     }
 
-    // زر حذف الصفوف الافتراضي
+    // Add image row
+    document.getElementById('addImageRowBtn').addEventListener('click', () => {
+      const container = document.getElementById('imageColorContainer');
+      const row = document.createElement('div');
+      row.className = 'image-color-row';
+      row.style.cssText = 'display:flex;gap:10px;align-items:center;background:rgba(255,255,255,0.02);padding:10px;border-radius:10px;border:1px solid var(--border)';
+      row.innerHTML = `
+        <input type="url" class="productImageUrlInput" placeholder="رابط الصورة (https://...)" style="flex:2;padding:10px" required>
+        <input type="text" class="productColorInput" placeholder="اللون/الستايل" style="flex:1;padding:10px" required>
+        <button type="button" class="btn btn-danger remove-row-btn" style="padding:10px;min-height:auto"><i class="fa-solid fa-trash"></i></button>
+      `;
+      container.appendChild(row);
+      row.querySelector('.remove-row-btn').addEventListener('click', () => row.remove());
+    });
+
     document.addEventListener('click', function(e) {
       if (e.target.closest('.remove-row-btn')) { e.target.closest('.image-color-row').remove(); }
     });
 
-    // إرسال فورم الإضافة
+    // Submit new product
     productForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const submitBtn = productForm.querySelector('button[type="submit"]');
@@ -524,7 +759,6 @@
         let variants = [];
         let colors = [];
 
-        // قراءة الروابط والألوان المدخلة
         for (let row of rows) {
           const urlInput = row.querySelector('.productImageUrlInput');
           const colorInput = row.querySelector('.productColorInput');
@@ -535,7 +769,7 @@
         }
 
         if (variants.length === 0) {
-          showMessage("يجب إضافة رابط صورة ولون/ستايل واحد على الأقل", "error");
+          showMessage("أضف صورة ولون واحد على الأقل", "error");
           submitBtn.disabled = false; submitBtn.innerHTML = originalHTML; return;
         }
 
@@ -545,6 +779,8 @@
           oldPrice: parseInt(document.getElementById('productOldPrice').value) || null,
           description: document.getElementById('productDescription').value.trim(),
           videoUrl: document.getElementById('productVideoUrl').value.trim() || null,
+          category: document.getElementById('productCategory').value,
+          sizes: getSelectedSizes(),
           variants: variants,
           colors: colors,
           badge: document.getElementById('productBadge').value.trim(),
@@ -552,13 +788,13 @@
         };
 
         await addDoc(collection(db, "products"), productData);
-        showMessage("تم إضافة المنتج بنجاح!", "success");
+        showMessage("تم إضافة المنتج!", "success");
         
         productForm.reset();
         document.getElementById('imageColorContainer').innerHTML = `
           <div class="image-color-row" style="display:flex;gap:10px;align-items:center;background:rgba(255,255,255,0.02);padding:10px;border-radius:10px;border:1px solid var(--border)">
             <input type="url" class="productImageUrlInput" placeholder="رابط الصورة (https://...)" style="flex:2;padding:10px" required>
-            <input type="text" class="productColorInput" placeholder="اللون/الستايل (مثال: أحمر)" style="flex:1;padding:10px" required>
+            <input type="text" class="productColorInput" placeholder="اللون/الستايل" style="flex:1;padding:10px" required>
             <button type="button" class="btn btn-danger remove-row-btn" style="padding:10px;min-height:auto"><i class="fa-solid fa-trash"></i></button>
           </div>
         `;
@@ -571,28 +807,23 @@
       }
     });
 
-    // حذف المنتج
     window.deleteProduct = async function(productId, productName) {
-      if (!confirm(`هل تريد حقاً حذف "${productName}"؟`)) return;
+      if (!confirm(`حذف "${productName}"؟`)) return;
       try {
         await deleteDoc(doc(db, "products", productId));
-        showMessage("تم حذف المنتج بنجاح!", "success");
+        showMessage("تم الحذف!", "success");
         loadProducts();
       } catch (error) { showMessage(error.message, "error"); }
     };
 
-    // ==========================================
-    // نافذة التعديل (Edit Product Modal)
-    // ==========================================
-    
-    // إضافة صف جديد للروابط في نافذة التعديل
+    // Edit Product
     document.getElementById('addEditImageRowBtn').addEventListener('click', () => {
       const container = document.getElementById('newEditImageColorContainer');
       const row = document.createElement('div');
       row.className = 'new-edit-image-color-row';
       row.style.cssText = 'display:flex;gap:10px;align-items:center;background:rgba(255,255,255,0.02);padding:10px;border-radius:10px;border:1px dashed var(--gold)';
       row.innerHTML = `
-        <input type="url" class="newEditProductImageUrlInput" placeholder="رابط الصورة (https://...)" style="flex:2;padding:10px" required>
+        <input type="url" class="newEditProductImageUrlInput" placeholder="رابط الصورة" style="flex:2;padding:10px" required>
         <input type="text" class="newEditProductColorInput" placeholder="اللون/الستايل" style="flex:1;padding:10px" required>
         <button type="button" class="btn btn-danger remove-new-edit-row-btn" style="padding:10px;min-height:auto"><i class="fa-solid fa-trash"></i></button>
       `;
@@ -602,7 +833,7 @@
 
     window.editProduct = function(productId) {
       const product = allProducts.find(p => p.id === productId);
-      if(!product) return;
+      if (!product) return;
 
       document.getElementById('editProductId').value = productId;
       document.getElementById('editProductName').value = product.name || "";
@@ -611,19 +842,23 @@
       document.getElementById('editProductBadge').value = product.badge || "";
       document.getElementById('editProductDescription').value = product.description || "";
       document.getElementById('editProductVideoUrl').value = product.videoUrl || "";
+      document.getElementById('editProductCategory').value = product.category || "ملابس";
 
-      // تفريغ الحاويات
+      // Set sizes
+      ['S', 'M', 'L', 'XL', 'XXL'].forEach(size => {
+        const checkbox = document.getElementById('editSize' + size);
+        if (checkbox) checkbox.checked = product.sizes?.includes(size) || false;
+      });
+
       const editImageContainer = document.getElementById('editImageColorContainer');
       editImageContainer.innerHTML = "";
       document.getElementById('newEditImageColorContainer').innerHTML = "";
 
-      // المتغيرات الحالية (Variants)
       window.currentVariants = [];
       
-      // التوافق مع البيانات القديمة والجديدة
-      if(product.variants && product.variants.length > 0) {
+      if (product.variants && product.variants.length > 0) {
         window.currentVariants = [...product.variants];
-      } else if(product.image || (product.images && product.images.length > 0)) {
+      } else if (product.image || (product.images && product.images.length > 0)) {
         let imgs = product.images || [product.image];
         let cols = product.colors || [];
         imgs.forEach((img, idx) => {
@@ -631,7 +866,6 @@
         });
       }
 
-      // رسم الحقول الموجودة
       window.currentVariants.forEach((variant, index) => {
         const row = document.createElement('div');
         row.className = 'existing-variant-row';
@@ -644,21 +878,20 @@
         `;
         editImageContainer.appendChild(row);
 
-        // مستمعات الأحداث للتحديث المباشر
         row.querySelector('.remove-existing-row-btn').addEventListener('click', (e) => {
           const idx = parseInt(e.currentTarget.getAttribute('data-index'));
-          window.currentVariants[idx] = null; // نضع قيمة فارغة بدلاً من الحذف لتجنب خربطة الفهرس (Index)
+          window.currentVariants[idx] = null;
           e.currentTarget.closest('.existing-variant-row').remove();
         });
 
         row.querySelector('.existingImageUrlInput').addEventListener('change', (e) => {
           const idx = parseInt(e.currentTarget.getAttribute('data-index'));
-          if(window.currentVariants[idx]) window.currentVariants[idx].image = e.target.value.trim();
+          if (window.currentVariants[idx]) window.currentVariants[idx].image = e.target.value.trim();
         });
 
         row.querySelector('.existingColorInput').addEventListener('change', (e) => {
           const idx = parseInt(e.currentTarget.getAttribute('data-index'));
-          if(window.currentVariants[idx]) window.currentVariants[idx].color = e.target.value.trim();
+          if (window.currentVariants[idx]) window.currentVariants[idx].color = e.target.value.trim();
         });
       });
 
@@ -667,7 +900,6 @@
 
     window.closeEditModal = () => editModal.classList.remove('open');
 
-    // حفظ التعديلات
     editForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const submitBtn = editForm.querySelector('button[type="submit"]');
@@ -678,10 +910,8 @@
         const productId = document.getElementById('editProductId').value;
         const productRef = doc(db, "products", productId);
 
-        // فلترة الروابط المحذوفة (التي أصبحت null)
         let variantsToSave = window.currentVariants.filter(v => v !== null);
 
-        // جلب الروابط الجديدة المضافة
         const newRows = document.querySelectorAll('#newEditImageColorContainer .new-edit-image-color-row');
         for (let row of newRows) {
           const urlInput = row.querySelector('.newEditProductImageUrlInput');
@@ -692,11 +922,15 @@
         }
 
         if (variantsToSave.length === 0) {
-          showMessage("المنتج يجب أن يحتوي على صورة واحدة على الأقل", "error");
+          showMessage("أضف صورة واحدة على الأقل", "error");
           submitBtn.disabled = false; submitBtn.innerHTML = originalHTML; return;
         }
 
-        let colors = variantsToSave.map(v => v.color);
+        // Get edit sizes
+        const editSizes = [];
+        ['S', 'M', 'L', 'XL', 'XXL'].forEach(size => {
+          if (document.getElementById('editSize' + size)?.checked) editSizes.push(size);
+        });
 
         let updateData = {
           name: document.getElementById('editProductName').value.trim(),
@@ -704,30 +938,30 @@
           oldPrice: parseInt(document.getElementById('editProductOldPrice').value) || null,
           description: document.getElementById('editProductDescription').value.trim(),
           videoUrl: document.getElementById('editProductVideoUrl').value.trim() || null,
+          category: document.getElementById('editProductCategory').value,
+          sizes: editSizes,
           badge: document.getElementById('editProductBadge').value.trim(),
           variants: variantsToSave,
-          colors: colors
+          colors: variantsToSave.map(v => v.color)
         };
 
         await updateDoc(productRef, updateData);
-        showMessage("تم تحديث المنتج بنجاح!", "success");
+        showMessage("تم التحديث!", "success");
         closeEditModal();
         loadProducts();
       } catch (error) {
         console.error(error);
-        showMessage("فشل في تحديث المنتج", "error");
+        showMessage("فشل التحديث", "error");
       } finally {
         submitBtn.disabled = false; submitBtn.innerHTML = originalHTML;
       }
     });
 
-    // التشغيل المبدئي
+    // Refresh
     document.getElementById('refreshBtn').addEventListener('click', () => {
-      loadOrders(); loadProducts();
+      loadAllOrders();
+      loadProducts();
     });
-    
-    // تحميل الطلبات عند فتح الصفحة كافتراضي
-    loadOrders();
   </script>
 </body>
-    </html>
+</html>
